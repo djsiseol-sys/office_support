@@ -1,0 +1,2931 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>근무 일지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+/* 색은 전부 여기 세 블록에 정의한다 — :root / prefers-color-scheme / [data-theme].
+   **미디어쿼리나 [data-theme] 안에서만 정의되는 색을 만들지 않는다** (한쪽 테마에서 사라진다) */
+:root{
+  --bg:#F7F8F8; --surface:#FFFFFF; --surface-2:#F1F3F4; --sunk:#EDEFF1;
+  --ink:#14171A; --ink-2:#3E464D; --muted:#727C85; --faint:#9AA3AB;
+  --line:#E1E5E8; --line-strong:#C9D0D6;
+  --accent:#2C5D7C; --accent-soft:#E7EEF3; --accent-ink:#1E4459;
+  --alert:#A8574C; --alert-soft:#F6EBE9;
+  --ok:#2E6B45; --ok-soft:#E6F0E9;
+
+  /* 사업장 구분색. 사업장 설정에서 고른다 (site.color).
+     요소에는 data-sc="blue" 처럼 붙인다 — 이름을 코드에 박지 않는다 */
+  --sc-none-soft:#F1F3F4; --sc-none-line:#C9D0D6; --sc-none-ink:#3E464D;
+  --sc-orange-soft:#FAEDDF; --sc-orange-line:#DFBE99; --sc-orange-ink:#7A4A16;
+  --sc-blue-soft:#E5EDF6;   --sc-blue-line:#AFC7DE;   --sc-blue-ink:#1F4A73;
+  --sc-green-soft:#E4F0E5;  --sc-green-line:#ADCBB3;  --sc-green-ink:#285631;
+  --sc-purple-soft:#EDE8F3; --sc-purple-line:#C3B4D6; --sc-purple-ink:#4B3670;
+
+  /* 요일색 — 토요일 파랑, 일요일·공휴일 빨강. 글씨에만 쓰고 칸을 물들이지 않는다 */
+  --sat:#20558C; --sun:#B03A3A;
+  --shadow:0 1px 2px rgba(20,23,26,.05),0 8px 24px -12px rgba(20,23,26,.18);
+  --r:6px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1113; --surface:#15191C; --surface-2:#1B2024; --sunk:#101416;
+    --ink:#E7EBED; --ink-2:#BFC7CD; --muted:#8B959D; --faint:#69737B;
+    --line:#262D32; --line-strong:#39424A;
+    --accent:#8BB8D6; --accent-soft:#1B2A34; --accent-ink:#B9D5E8;
+    --alert:#D08A80; --alert-soft:#2C201E;
+    --ok:#8FC7A5; --ok-soft:#1A2A1E;
+    --sc-none-soft:#1B2024; --sc-none-line:#39424A; --sc-none-ink:#BFC7CD;
+    --sc-orange-soft:#2C2318; --sc-orange-line:#5A422A; --sc-orange-ink:#DFB78A;
+    --sc-blue-soft:#1A2733;   --sc-blue-line:#2E4557;   --sc-blue-ink:#9DC3E3;
+    --sc-green-soft:#1A2A1E;  --sc-green-line:#2D4935;  --sc-green-ink:#9BC8A5;
+    --sc-purple-soft:#231D2E; --sc-purple-line:#40355A; --sc-purple-ink:#C0AEDD;
+    --sat:#8FB6E0; --sun:#E39191;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1113; --surface:#15191C; --surface-2:#1B2024; --sunk:#101416;
+  --ink:#E7EBED; --ink-2:#BFC7CD; --muted:#8B959D; --faint:#69737B;
+  --line:#262D32; --line-strong:#39424A;
+  --accent:#8BB8D6; --accent-soft:#1B2A34; --accent-ink:#B9D5E8;
+  --alert:#D08A80; --alert-soft:#2C201E;
+  --ok:#8FC7A5; --ok-soft:#1A2A1E;
+  --sc-none-soft:#1B2024; --sc-none-line:#39424A; --sc-none-ink:#BFC7CD;
+  --sc-orange-soft:#2C2318; --sc-orange-line:#5A422A; --sc-orange-ink:#DFB78A;
+  --sc-blue-soft:#1A2733;   --sc-blue-line:#2E4557;   --sc-blue-ink:#9DC3E3;
+  --sc-green-soft:#1A2A1E;  --sc-green-line:#2D4935;  --sc-green-ink:#9BC8A5;
+  --sc-purple-soft:#231D2E; --sc-purple-line:#40355A; --sc-purple-ink:#C0AEDD;
+  --sat:#8FB6E0; --sun:#E39191;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- 윗줄 ---------- */
+.topbar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1440px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:9px}
+.brand h1{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0}
+.brand h1 button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;letter-spacing:inherit}
+.brand h1 button:hover{color:var(--accent-ink);text-decoration:underline;text-underline-offset:3px}
+.period{display:flex;align-items:center;gap:6px}
+.period input[type=number]{width:74px;padding:5px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);text-align:right}
+.period select{padding:5px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.stepper{display:flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stepper button{background:var(--surface);border:0;padding:5px 11px;color:var(--ink-2)}
+.stepper button+button{border-left:1px solid var(--line)}
+.stepper button:hover{background:var(--surface-2)}
+.tabs{display:flex;gap:2px;margin-left:auto}
+.tabs button{background:transparent;border:1px solid transparent;border-radius:var(--r);padding:6px 13px;color:var(--muted);font-size:13px}
+.tabs button:hover{color:var(--ink);background:var(--surface-2)}
+.tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent-ink);font-weight:500}
+.topbar-tools{display:flex;align-items:center;gap:8px}
+.savenow{position:relative}
+.savenow.dirty{border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.savenow.dirty::after{content:"";position:absolute;top:-3px;right:-3px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.savestate{font-size:11px;color:var(--faint);letter-spacing:.02em;min-width:96px;text-align:right}
+
+/* ---------- 단추 ---------- */
+.btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:var(--r);font-size:13px;line-height:1.4}
+.btn:hover{background:var(--surface-2)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn-primary,:root:not([data-theme="light"]) .btn-primary{color:#0E1113}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn-primary{color:#fff}}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-quiet{border-color:transparent;background:transparent;color:var(--muted)}
+.btn-quiet:hover{background:var(--surface-2);color:var(--ink)}
+.btn-danger{border-color:var(--alert);color:var(--alert);background:transparent}
+.btn-danger:hover{background:var(--alert-soft)}
+.btn-sm{padding:3px 9px;font-size:12px}
+
+/* ---------- 판 ---------- */
+main{max-width:1440px;margin:0 auto;padding:18px 20px 60px}
+.pane{display:none}
+.pane.active{display:block}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+@media (max-width:1080px){.split{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+
+/* ---------- 달력 ---------- */
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.cal-title{font-size:19px;font-weight:600;letter-spacing:-.02em}
+.cal-title small{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:0}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--muted);flex-wrap:wrap;align-items:center}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend .site i{background:var(--sc-soft);border:1px solid var(--sc-line)}
+.dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--line);background:var(--surface-2)}
+.dow div{padding:7px 8px;font-size:11px;letter-spacing:.08em;color:var(--muted);text-align:center}
+.dow div:first-child{color:var(--sun);font-weight:600}
+.dow div:last-child{color:var(--sat);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(112px,auto)}
+/* 칸 바탕은 전부 흰색이다. 초소는 쉬는 날이 없다 — 주말 배경을 깔지 않는다.
+   이번 달이 아닌 앞뒤 달 날짜(.cell.out)만 회색으로 구분한다 */
+.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px;display:flex;flex-direction:column;gap:4px;background:var(--surface);text-align:left;font:inherit;color:inherit;border-top:0;border-left:0;position:relative}
+.cell:nth-child(7n){border-right:0}
+.cell.out{background:var(--sunk)}
+.cell.blank{background:var(--sunk)}
+.cell:hover{box-shadow:inset 0 0 0 1px var(--line-strong)}
+.cell.selected{box-shadow:inset 0 0 0 2px var(--accent)}
+.cell-date{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
+.cell.out .cell-date{color:var(--faint)}
+.cell-date > b{font-weight:500;font-size:14px}
+.cell.sat .cell-date > b{color:var(--sat)}
+.cell.sun .cell-date > b,.cell.hol .cell-date > b{color:var(--sun)}
+.cell.out .cell-date > b{opacity:.55}
+.cell.today .cell-date > b{background:var(--accent);color:var(--surface);border-radius:4px;padding:0 5px}
+.cell.today.sat .cell-date > b,.cell.today.sun .cell-date > b,.cell.today.hol .cell-date > b{color:var(--surface)}
+.holiday-tag{font-size:10px;color:var(--sun);letter-spacing:-.01em}
+.cell-count{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap}
+/* 그 날 일지를 다 쓰고 확인까지 마쳤다는 표시 */
+.cell-done{position:absolute;right:5px;bottom:4px;line-height:1;font-size:15px;font-weight:700;color:var(--sun)}
+.cell.is-done{padding-bottom:20px}
+/* 근무조 칩 — 윗줄에 시각·근무조, 아랫줄에 근무자.
+   아랫줄은 자르지 않고 줄을 바꾼다 (이름이 잘리면 누가 섰는지 알 수 없다) */
+.chip{display:block;width:100%;text-align:left;border:1px solid var(--sc-line);background:var(--sc-soft);color:var(--ink);
+  border-radius:3px;padding:3px 5px;font-size:12px;line-height:1.35;box-shadow:inset 3px 0 0 var(--sc-line);overflow:hidden}
+.chip>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip>span:first-child{font-size:11px;opacity:.85}
+.chip>span.n{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-overflow:clip;font-size:12px;font-weight:500;opacity:1}
+.chip .t{font-family:"IBM Plex Mono",monospace;margin-right:3px;font-size:10px;letter-spacing:-.04em;display:inline!important}
+.chip.is-draft{border-style:dashed}
+/* 사업장 색 — data-sc 로 고른다. 이름을 코드에 박지 않는다 */
+[data-sc]{--sc-soft:var(--sc-none-soft);--sc-line:var(--sc-none-line);--sc-ink:var(--sc-none-ink)}
+[data-sc="orange"]{--sc-soft:var(--sc-orange-soft);--sc-line:var(--sc-orange-line);--sc-ink:var(--sc-orange-ink)}
+[data-sc="blue"]{--sc-soft:var(--sc-blue-soft);--sc-line:var(--sc-blue-line);--sc-ink:var(--sc-blue-ink)}
+[data-sc="green"]{--sc-soft:var(--sc-green-soft);--sc-line:var(--sc-green-line);--sc-ink:var(--sc-green-ink)}
+[data-sc="purple"]{--sc-soft:var(--sc-purple-soft);--sc-line:var(--sc-purple-line);--sc-ink:var(--sc-purple-ink)}
+.chip-more{font-size:11px;color:var(--muted);background:none;border:0;padding:2px 4px;text-align:left}
+
+/* ---------- 우측 상세 ---------- */
+.rail{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
+.rail-head{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rail-head h2{margin:0;font-size:14px;font-weight:600}
+.rail-head .sub{font-size:11px;color:var(--muted)}
+.rail-body{padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 210px);overflow:auto}
+.empty{padding:22px 14px;text-align:center;color:var(--faint);font-size:12px}
+.item{border:1px solid var(--line);border-radius:var(--r);padding:9px 10px 9px 12px;display:flex;flex-direction:column;gap:6px;background:var(--sc-soft);box-shadow:inset 4px 0 0 var(--sc-line)}
+.item-top{display:flex;align-items:baseline;gap:8px}
+.item-time{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums}
+.item-site{font-size:12px;color:var(--sc-ink);font-weight:500;margin-left:auto}
+.item-name{font-size:13px;font-weight:500}
+.item-meta{font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.item-actions{display:flex;gap:4px;margin-top:2px;align-items:center;flex-wrap:wrap}
+/* 특이사항은 놓치면 안 되는 값이라 눈에 띄게 붙인다 — 이 표시를 빼지 않는다 */
+.item-flag{border:1px solid var(--alert);border-left-width:4px;background:var(--alert-soft);color:var(--ink);
+  border-radius:4px;padding:5px 8px;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.item-flag b{display:block;font-size:10px;letter-spacing:.08em;color:var(--alert);font-weight:600;margin-bottom:1px}
+.item-note{border:1px solid var(--accent);border-left-width:4px;background:var(--accent-soft);color:var(--ink);
+  border-radius:4px;padding:5px 8px;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.item-note b{display:block;font-size:10px;letter-spacing:.08em;color:var(--accent-ink);font-weight:600;margin-bottom:1px}
+.tag{font-size:10px;letter-spacing:.04em;padding:1px 6px;border-radius:3px;background:var(--surface);color:var(--muted);border:1px solid var(--line-strong)}
+.tag.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent;font-weight:600}
+.tag.draft{border-style:dashed}
+.rob{font-size:10px;letter-spacing:.06em;padding:2px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted)}
+
+/* ---------- 요약 ---------- */
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.stat{background:var(--surface);padding:11px 13px}
+.stat dt{font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin:0}
+.stat dd{margin:3px 0 0;font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:500;letter-spacing:-.02em}
+.stat dd small{font-size:11px;color:var(--muted);font-weight:400;margin-left:3px;font-family:"IBM Plex Sans KR",sans-serif}
+
+/* ---------- 표 ---------- */
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.06em;color:var(--muted);font-weight:500;background:var(--surface-2);position:sticky;top:0;white-space:nowrap}
+tbody tr:hover{background:var(--surface-2)}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.t{font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+td.wrap{white-space:pre-wrap;word-break:break-word;min-width:170px}
+/* 특이사항은 목록에서도 붉게 세운다. 굵기는 600 까지만 쓴다 */
+#listBody td.flag{color:var(--alert);font-weight:600}
+td.done,th.done{width:30px;text-align:center;padding-left:6px;padding-right:6px;color:var(--sun);font-weight:700}
+td.dow-sat{color:var(--sat);font-weight:600}
+td.dow-sun{color:var(--sun);font-weight:600}
+.filters{display:flex;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.filters input[type=search],.filters select{padding:5px 9px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.filters input[type=search]{min-width:190px}
+.filters .seg{display:flex;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden}
+.filters .seg button{background:var(--surface);border:0;padding:5px 12px;font-size:13px;color:var(--muted)}
+.filters .seg button+button{border-left:1px solid var(--line-strong)}
+.filters .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink);font-weight:500}
+.filters .spacer{flex:1 1 auto}
+tbody tr.is-draft td{border-top:2px dashed var(--line-strong)}
+
+/* ---------- 설정 ---------- */
+.settings{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.sec-head{padding:12px 14px;border-bottom:1px solid var(--line)}
+.sec-head h2{margin:0;font-size:14px;font-weight:600}
+.sec-head p{margin:3px 0 0;font-size:11.5px;color:var(--muted)}
+.sec-body{padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+/* 목록은 옆으로 늘어놓는다. 세로로만 쌓으면 화면이 한없이 길어진다.
+   **.sec-body 뒤에 두어야 한다** — 앞에 두면 flex 로 되돌아간다 */
+.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;align-items:start}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--muted);letter-spacing:.02em}
+.field input,.field select,.field textarea{padding:6px 9px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);width:100%}
+.field textarea{resize:vertical;min-height:52px}
+.field .hint{font-size:10.5px;color:var(--faint)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row21{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+@media (max-width:520px){.row2,.row3,.row21{grid-template-columns:1fr}}
+.article{font-size:11px;color:var(--muted);border-left:2px solid var(--line-strong);padding:2px 0 2px 8px}
+.hr{height:1px;background:var(--line);margin:2px 0}
+.setbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.setbar .spacer{flex:1 1 auto}
+.setsec{display:flex;flex-direction:column;gap:11px}
+.setsec h3{margin:0;font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600}
+kbd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:3px;padding:0 4px;background:var(--surface-2);color:var(--ink-2)}
+.togg{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.togg input{width:15px;height:15px;accent-color:var(--accent);margin:0;flex:0 0 auto}
+
+/* ---------- 모달 ---------- */
+.backdrop{position:fixed;inset:0;background:rgba(15,18,20,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:60;overflow:auto}
+.backdrop[hidden]{display:none}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);width:100%;max-width:720px}
+.modal-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal-head h2{margin:0;font-size:15px;font-weight:600}
+.modal-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.modal-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.modal-foot .spacer{margin-left:auto}
+/* 창이 길다. 아랫줄을 붙박이로 두고 가운데만 굴린다 — 안 그러면 「저장」 이 화면 밖으로 밀린다 */
+#settingsBox,#modal{align-items:center}
+#settingsBox>.modal,#modal>.modal{display:flex;flex-direction:column;max-height:calc(100vh - 80px)}
+#settingsBox>.modal>.modal-head,#settingsBox>.modal>.modal-foot,
+#modal>.modal>.modal-head,#modal>.modal>.modal-foot{flex:0 0 auto}
+#settingsBox>.modal>.modal-body,#modal>.modal>.modal-body{overflow:auto;flex:1 1 auto}
+#setSaveNote{font-size:11.5px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notice{font-size:12px;padding:8px 10px;border-radius:var(--r);background:var(--alert-soft);color:var(--alert);border:1px solid var(--alert)}
+.info{font-size:12px;padding:8px 10px;border-radius:var(--r);background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent)}
+/* 24시간제 시·분 고르기. <input type="time"> 은 브라우저 지역 설정에 따라
+   오전/오후로 나오는데 코드로 막을 수 없다 — **type="time" 으로 되돌리지 않는다** */
+.timepick{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.timepick select{flex:1 1 52px;width:auto;min-width:52px;padding-right:4px}
+.timepick span{font-size:12px;color:var(--muted);flex:0 0 auto}
+
+/* 반복 표 입력(출입·순찰 기록) */
+.gtab{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.gtab table{font-size:12.5px}
+.gtab th,.gtab td{padding:4px 6px;border-bottom:1px solid var(--line)}
+.gtab th{position:static}
+.gtab input,.gtab select,.gtab textarea{width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.gtab td.x{width:34px;text-align:center;padding:4px}
+.gtab .btn-sm{padding:2px 7px}
+.gfoot{padding:6px 8px;background:var(--surface-2);display:flex;gap:8px;align-items:center}
+.gfoot .hint{font-size:11px;color:var(--muted);margin-left:auto}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:12.5px;z-index:80;box-shadow:var(--shadow)}
+.toast[hidden]{display:none}
+.recover{max-width:1440px;margin:12px auto -4px;padding:9px 14px;display:flex;align-items:center;gap:10px;
+  border:1px solid var(--alert);background:var(--alert-soft);color:var(--alert);border-radius:8px;font-size:12.5px}
+.recover[hidden]{display:none}
+.recover span{margin-right:auto}
+
+/* ---------- 역할에 따라 화면에서 빼는 것 ----------
+   **감추는 것이 아니라 아예 그리지 않아야 하는 값은 renderXxx 첫 줄에서 막는다.**
+   여기 규칙은 「고치는 단추」 를 숨기는 용도다 */
+body.ro #newBtn,body.ro #railDone,body.ro .item-actions,body.ro #saveRec,body.ro #delRec,
+body.ro #addSite,body.ro #addField,body.ro #addForm,body.ro [data-delsite],body.ro [data-delfield]{display:none!important}
+body.ro #pane-settings input,body.ro #pane-settings select,body.ro #pane-settings textarea{pointer-events:none;opacity:.72}
+/* **조회 전용이어도 서버 연결·로그인 칸은 잠그지 않는다** —
+   잠그면 로그인할 방법이 없어 조회 전용에서 영영 빠져나오지 못한다 */
+body.ro #serverCard input,body.ro #serverCard select,body.ro #serverCard textarea{pointer-events:auto;opacity:1}
+body.no-admin #pane-settings input,body.no-admin #pane-settings select,body.no-admin #pane-settings textarea{pointer-events:none;opacity:.72}
+body.no-admin #addSite,body.no-admin #addField,body.no-admin #addForm,body.no-admin [data-delsite],
+body.no-admin [data-delfield],body.no-admin #setSave,body.no-admin #setPaneSave{display:none!important}
+/* 로그인하지 않은 사람 — 일지 본문은 개인정보이므로 **아예 그리지 않는다**
+   (renderRail·renderList 첫 줄에서 막는다). 여기서는 단추만 뺀다 */
+body.viewer .tabs [data-pane="settings"],body.viewer #newBtn,body.viewer #saveNow,
+body.viewer #railDone,body.viewer .item-actions,body.viewer #exportXlsx,body.viewer #exportCsv,
+body.viewer #printBtn{display:none!important}
+
+/* ---------- 인쇄 ---------- */
+.print-only{display:none}
+#printArea{display:none}
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  .topbar,.rail,.filters,.recover,.toast,.backdrop{display:none!important}
+  main{max-width:none;padding:0}
+  .card{border:0}
+  body{background:#fff;font-size:11px}
+  th{position:static}
+  .print-only{display:block}
+  body.print-detail main{display:none}
+  body.print-detail #printArea{display:block}
+  body.print-list .pane{display:none!important}
+  body.print-list #pane-list{display:block!important}
+  .pd-day{page-break-inside:avoid;margin-bottom:12px}
+  .pd-day h3{margin:0 0 4px;font-size:13px}
+  .pd-day td.dow-sat{color:#20558C}
+  .pd-day td.dow-sun{color:#B03A3A}
+  tr,td,th{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <h1><button type="button" id="homeBtn" title="첫 화면으로 새로고침합니다">근무 일지</button></h1>
+    </div>
+
+    <div class="period">
+      <div class="stepper">
+        <button type="button" id="prevMonth" title="이전 달 (←)">‹</button>
+        <button type="button" id="nextMonth" title="다음 달 (→)">›</button>
+      </div>
+      <input type="number" id="yearInput" min="2000" max="2100" step="1" class="mono" aria-label="연도">
+      <select id="monthInput" aria-label="월"></select>
+      <button type="button" class="btn btn-sm" id="todayBtn">이번 달</button>
+      <select id="siteInput" aria-label="사업장"></select>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" data-pane="calendar" aria-selected="true">달력</button>
+      <button type="button" role="tab" data-pane="list" aria-selected="false">목록</button>
+      <button type="button" role="tab" data-pane="settings" aria-selected="false">사업장 · 양식</button>
+    </nav>
+
+    <div class="topbar-tools">
+      <span class="rob" id="roBadge" hidden>조회 전용</span>
+      <span class="rob" id="roleBadge" hidden></span>
+      <span class="savestate" id="saveState">—</span>
+      <button type="button" class="btn btn-sm savenow" id="saveNow" title="지금 저장 (Ctrl+S) · 일지는 쓰는 즉시 저장됩니다">저장</button>
+      <button type="button" class="btn btn-sm" id="settingsBtn" title="설정 · 로그인">⚙ 설정</button>
+      <button type="button" class="btn btn-sm" id="themeBtn" title="화면 모드 전환">◐</button>
+      <button type="button" class="btn btn-primary btn-sm" id="newBtn">+ 일지 작성</button>
+    </div>
+  </div>
+</header>
+
+<div class="recover" id="recoverBar" hidden>
+  <span id="recoverText"></span>
+  <button type="button" class="btn btn-sm" id="recoverApply">다시 넣기</button>
+  <button type="button" class="btn btn-quiet btn-sm" id="recoverDrop">버리기</button>
+</div>
+
+<main>
+  <!-- ================= 달력 ================= -->
+  <section class="pane active" id="pane-calendar">
+    <div class="split">
+      <div>
+        <div class="card">
+          <div class="cal-head">
+            <div class="cal-title" id="calTitle"></div>
+            <div class="legend" id="calLegend"></div>
+          </div>
+          <div class="dow"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+          <div class="grid" id="calGrid"></div>
+        </div>
+        <p class="article" id="storageNote" style="margin:10px 2px 0"></p>
+      </div>
+
+      <aside class="rail">
+        <dl class="summary" id="summary"></dl>
+        <div class="card">
+          <div class="rail-head">
+            <div>
+              <h2 id="railDate">날짜를 고르세요</h2>
+              <div class="sub" id="railSub"></div>
+            </div>
+            <div style="display:flex;gap:4px">
+              <button type="button" class="btn btn-sm" id="railDone" hidden>확인</button>
+            </div>
+          </div>
+          <div class="rail-body" id="railBody"><div class="empty">달력에서 날짜를 누르면 그 날 일지가 여기 나옵니다.</div></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= 목록 ================= -->
+  <section class="pane" id="pane-list">
+    <div class="card">
+      <div class="filters">
+        <input type="search" id="listSearch" placeholder="근무자 · 특이사항 · 내용 검색">
+        <select id="listSite"></select>
+        <select id="listShift"><option value="">근무조 전체</option></select>
+        <div class="seg" id="listStateSeg">
+          <button type="button" data-ls="" aria-pressed="true">전체</button>
+          <button type="button" data-ls="draft" aria-pressed="false">임시저장만</button>
+          <button type="button" data-ls="flag" aria-pressed="false">특이사항만</button>
+        </div>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-sm" id="printBtn">인쇄…</button>
+        <button type="button" class="btn btn-sm" id="exportXlsx">이 달 엑셀</button>
+        <button type="button" class="btn btn-sm" id="exportCsv">이 달 CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr id="listHead"></tr></thead>
+          <tbody id="listBody"></tbody>
+          <tfoot id="listFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 사업장 · 양식 ================= -->
+  <section class="pane" id="pane-settings">
+    <div class="setbar">
+      <div class="seg filters" style="padding:0;border:0" id="setSeg">
+        <div class="seg">
+          <button type="button" data-sp="site" aria-pressed="true">사업장 · 근무조</button>
+          <button type="button" data-sp="form" aria-pressed="false">일지 양식</button>
+        </div>
+      </div>
+      <span class="spacer"></span>
+      <span class="rob" id="settingsRO" hidden>조회 전용 — 담당자 계정으로 로그인하면 고칠 수 있습니다</span>
+      <button type="button" class="btn btn-primary btn-sm" id="setPaneSave">설정 저장</button>
+    </div>
+
+    <div class="settings">
+      <section class="card" data-sp="site">
+        <div class="sec-head">
+          <h2>사업장 · 근무조</h2>
+          <p>일지를 쓰는 곳과 근무조를 정합니다. 사업장을 더하면 달력·목록·양식이 함께 늘어납니다.</p>
+        </div>
+        <div class="sec-body">
+          <div class="setgrid" id="siteList"></div>
+          <button type="button" class="btn btn-sm" id="addSite" style="align-self:flex-start">+ 사업장 추가</button>
+        </div>
+      </section>
+
+      <section class="card" data-sp="form" hidden>
+        <div class="sec-head">
+          <h2>일지 양식</h2>
+          <p>일지에 어떤 칸이 있는지를 여기서 정합니다. <b>칸을 더하는 데 코드를 고칠 필요가 없습니다</b> —
+             사업장마다 다른 양식을 쓸 수 있습니다.</p>
+        </div>
+        <div class="sec-body">
+          <div class="field" style="max-width:340px">
+            <label for="formPick">고칠 양식</label>
+            <select id="formPick"></select>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="formName">양식 이름</label><input id="formName"></div>
+            <div class="field"><label></label>
+              <button type="button" class="btn btn-sm" id="addForm" style="align-self:flex-start">+ 양식 추가</button>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div class="setgrid" id="fieldList"></div>
+          <button type="button" class="btn btn-sm" id="addField" style="align-self:flex-start">+ 칸 추가</button>
+          <p class="article">
+            <b>표</b> 형식은 출입 기록·순찰 기록처럼 줄이 여러 개인 칸입니다. 열 이름을 쉼표로 적습니다.
+          </p>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<!-- ================= 일지 작성 · 수정 ================= -->
+<div class="backdrop" id="modal" hidden>
+  <form class="modal" id="recForm">
+    <div class="modal-head">
+      <h2 id="modalTitle">일지 작성</h2>
+      <button type="button" class="btn btn-quiet btn-sm" id="modalClose">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="row3">
+        <div class="field">
+          <label for="fDate">근무일자</label>
+          <input type="date" id="fDate" required>
+        </div>
+        <div class="field">
+          <label for="fSite">사업장</label>
+          <select id="fSite"></select>
+        </div>
+        <div class="field">
+          <label for="fShift">근무조</label>
+          <select id="fShift"></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="fStartH">근무 시작</label>
+          <div class="timepick"><select id="fStartH"></select><span>시</span><select id="fStartM"></select><span>분</span></div>
+        </div>
+        <div class="field">
+          <label for="fEndH">근무 종료</label>
+          <div class="timepick"><select id="fEndH"></select><span>시</span><select id="fEndM"></select><span>분</span></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+      <!-- 양식 정의(settings.forms)대로 여기 칸이 그려진다 -->
+      <div id="formFields" style="display:flex;flex-direction:column;gap:12px"></div>
+
+      <div class="notice" id="dupNotice" hidden></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-danger" id="delRec" hidden>삭제</button>
+      <span class="spacer"></span>
+      <label class="togg" style="margin-right:6px"><input type="checkbox" id="fDraft"><span>임시저장</span></label>
+      <button type="button" class="btn" id="cancelRec">취소</button>
+      <button type="submit" class="btn btn-primary" id="saveRec">저장</button>
+    </div>
+  </form>
+</div>
+
+<!-- 관리자 전용 칸. **감추는 게 아니라 담당자일 때만 화면에 붙인다** —
+     hidden 으로만 두면 구성원 이메일이 화면 소스에 남아 조회하는 사람이 개발자도구로 본다 -->
+<template id="adminTpl">
+  <h3>구성원 · 권한</h3>
+  <div class="field">
+    <label for="setManagers">담당자 계정 (한 줄에 하나)</label>
+    <textarea id="setManagers" rows="3" spellcheck="false" placeholder="hong@example.or.kr"></textarea>
+    <span class="hint">여기 적힌 계정만 사업장·양식을 고칠 수 있습니다. 비워 두면 <b>로그인한 모든 계정이 담당자</b>가 됩니다.</span>
+  </div>
+  <div class="field">
+    <label for="setOrgNote">기관 표기 (인쇄물 머리글)</label>
+    <input id="setOrgNote" placeholder="예: 대전광역시시설관리공단 ○○사업소">
+  </div>
+  <div class="hr"></div>
+  <h3>데이터 관리</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button type="button" class="btn btn-sm" id="exportJson">전체 JSON 내보내기</button>
+    <button type="button" class="btn btn-danger btn-sm" id="clearLogs">이 달 일지 전부 지우기</button>
+  </div>
+  <p class="hint" style="margin:0">
+    지우기는 되돌릴 수 없습니다. 누르면 <b>비밀번호를 다시 묻습니다</b>.
+  </p>
+</template>
+
+<div class="backdrop" id="settingsBox" hidden>
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <h2>설정</h2>
+      <button type="button" class="btn btn-quiet btn-sm" id="setClose">닫기 ✕</button>
+    </div>
+    <div class="modal-body" id="serverCard">
+      <div class="setsec">
+        <h3>서버 연결 · 로그인</h3>
+        <div style="display:flex;justify-content:space-between;gap:12px;font-size:12.5px">
+          <span>상태</span><span id="srvState" class="mono">확인 중</span>
+        </div>
+        <div class="hr"></div>
+
+        <div id="srvCfgRow" style="display:flex;flex-direction:column;gap:11px">
+          <div class="field">
+            <label for="srvUrl">Project URL</label>
+            <input type="text" id="srvUrl" placeholder="https://xxxxxxxx.supabase.co" spellcheck="false">
+            <span class="hint">https://xxxxxxxx.supabase.co 까지만 넣습니다. 뒤에 /rest/v1 을 붙이면 로그인이 404 로 실패합니다.</span>
+          </div>
+          <div class="field">
+            <label for="srvKey">Publishable key (공개용 키)</label>
+            <input type="text" id="srvKey" placeholder="sb_publishable_..." spellcheck="false">
+            <span class="hint">sb_publishable_ 로 시작하는 키입니다. 공개돼도 됩니다.<br>
+              <b>sb_secret_ / service_role 키는 절대 넣지 마세요.</b></span>
+          </div>
+          <button type="button" class="btn btn-sm" id="srvSaveCfg" style="align-self:flex-start">주소·키 저장하고 다시 연결</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="srvLoggedOut">
+          <div class="row2">
+            <div class="field"><label for="srvEmail">이메일</label><input type="email" id="srvEmail" autocomplete="username" spellcheck="false"></div>
+            <div class="field"><label for="srvPw">비밀번호</label><input type="password" id="srvPw" autocomplete="current-password"></div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="srvLogin" style="margin-top:9px">로그인</button>
+        </div>
+
+        <div id="srvLoggedIn" hidden>
+          <p class="hint" style="margin:0 0 8px;font-size:11.5px;line-height:1.6">
+            <span id="srvWho" class="mono"></span> 으로 로그인되어 있습니다. <span id="srvRole"></span>
+          </p>
+          <button type="button" class="btn btn-sm" id="srvLogout">로그아웃</button>
+        </div>
+
+        <p class="field hint" id="srvMsg" style="margin:0"></p>
+      </div>
+
+      <div class="setsec" id="setAdminOnly" hidden></div>
+      <p class="hint" id="setLockNote" hidden style="margin:0;font-size:11.5px;line-height:1.6">
+        설정을 고치려면 <b>담당자 계정</b>으로 로그인해야 합니다.
+      </p>
+
+      <!-- 판 번호. "고쳤다는데 화면이 그대로다" 는 대개 옛 파일을 보고 있는 것이라,
+           이 표시가 없으면 어느 파일인지 확인할 방법이 없다.
+           조회하는 사람도 볼 수 있게 관리자 전용 칸 **바깥**에 둔다 -->
+      <div class="hr"></div>
+      <p class="hint" style="margin:0;font-size:11.5px;line-height:1.6">
+        판 번호 <b class="mono" id="appVer"></b>
+        <br>안내받은 번호와 다르면 옛 화면을 보고 있는 것입니다. <kbd>Ctrl</kbd>+<kbd>F5</kbd> 로 새로고침해 보세요.
+      </p>
+    </div>
+    <div class="modal-foot">
+      <span class="hint" id="setSaveNote" style="margin:0"></span>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="setCloseFoot">닫기</button>
+      <button type="button" class="btn btn-primary" id="setSave">설정 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 되돌릴 수 없는 일 앞에서 한 번 더 막는다.
+     confirm() 하나로만 두면 실수로 한 번 눌렀을 때 그대로 지워진다 -->
+<div class="backdrop" id="pwBox" hidden>
+  <form class="modal" id="pwForm" style="max-width:440px" autocomplete="off">
+    <div class="modal-head">
+      <h2 id="pwTitle">정말 지울까요?</h2>
+      <button type="button" class="btn btn-quiet btn-sm" id="pwClose">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="notice" id="pwWhat" style="margin:0 0 12px"></p>
+      <div class="field">
+        <label for="pwInput" id="pwLabel">비밀번호</label>
+        <input type="password" id="pwInput" autocomplete="current-password">
+        <span class="hint" id="pwHint"></span>
+      </div>
+      <p class="field hint" id="pwMsg" style="margin:8px 0 0;color:var(--alert)"></p>
+    </div>
+    <div class="modal-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="pwCancel">취소</button>
+      <button type="submit" class="btn btn-danger" id="pwGo">확인</button>
+    </div>
+  </form>
+</div>
+
+<div class="backdrop" id="printBox" hidden>
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <h2>인쇄</h2>
+      <button type="button" class="btn btn-quiet btn-sm" id="printClose">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>무엇을 인쇄할까요</label>
+        <div class="seg filters" style="padding:0;border:0">
+          <div class="seg">
+            <button type="button" data-pm="detail" aria-pressed="true">날짜별 일지</button>
+            <button type="button" data-pm="list" aria-pressed="false">목록</button>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="printDateBox">
+        <label>날짜 고르기</label>
+        <div id="printDates" style="display:flex;flex-wrap:wrap;gap:5px;max-height:200px;overflow:auto"></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <button type="button" class="btn btn-sm" id="printAllDates">전체</button>
+          <button type="button" class="btn btn-sm" id="printNoDates">해제</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="printCancel">취소</button>
+      <button type="button" class="btn btn-primary" id="printGo">인쇄</button>
+    </div>
+  </div>
+</div>
+
+<div class="backdrop" id="copyBox" hidden>
+  <div class="modal" style="max-width:620px">
+    <div class="modal-head">
+      <h2 id="copyTitle">복사</h2>
+      <button type="button" class="btn btn-quiet btn-sm" id="copyClose">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" style="margin:0">이 화면에서는 파일 저장이 막혀 있어 붙여넣기용으로 건넵니다.</p>
+      <textarea id="copyText" rows="12" spellcheck="false" style="width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px"></textarea>
+    </div>
+    <div class="modal-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-primary" id="copyDo">클립보드로 복사</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* =========================================================
+   1. 데이터 구조
+   ========================================================= */
+/* 판 번호. **내용을 고치면 반드시 여기를 올린다.**
+   ⚙ 설정 창 맨 아래에 뜬다 — "고쳤다는데 화면이 그대로다" 는 대개 옛 파일을
+   열고 있는 것인데, 이 표시가 없으면 어느 파일을 보는지 확인할 방법이 없다 */
+const APP_VERSION = "2026-08-28.3";
+
+/* ── 서버(Supabase) 접속 정보 ──────────────────────────────
+   여기 두 값을 채우면 각자 입력하지 않아도 된다.
+   publishable key(sb_publishable_...) 를 넣는다. 공개되어도 되는 키다 —
+   실제 권한은 서버의 RLS 정책이 정한다.
+   **sb_secret_ / service_role 키는 절대 넣지 않는다.** */
+const SUPABASE_URL = "";           // 예: https://xxxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = "";      // 예: sb_publishable_...
+
+/* 표 이름. 시설 예약 대장과 같은 Supabase 프로젝트를 쓰되 표만 따로 둔다
+   (계정이 공유되어 직원이 두 번 가입할 필요가 없다) */
+const T_LOG = "worklog";           // 일지 — **한 건이 한 행이다**
+const T_CFG = "worklog_config";    // 사업장·양식 설정 — 한 행(id='main')
+const CFG_ID = "main";
+
+const CFG_KEY = "wl.cfg.v1";       // 설정 사본 (localStorage)
+const LOG_KEY = "wl.logs.v1";      // 일지 사본
+const PENDING_KEY = "wl.pending.v1";
+const SERVER_CFG_KEY = "wl.server.v1";
+const SERVER_SESSION_KEY = "wl.session.v1";
+
+const AUTOSAVE_MS = 120000;   // 설정은 마지막 변경 후 2분 조용하면 자동 저장
+const POLL_MS = 15000;        // 다른 사람이 쓴 일지가 있는지 확인하는 주기
+
+/* 사업장 구분색. CSS 의 --sc-<이름>-soft/line/ink 와 짝이 맞아야 한다 */
+const SITE_COLORS = [
+  { id: "blue", name: "파랑" }, { id: "orange", name: "주황" },
+  { id: "green", name: "초록" }, { id: "purple", name: "보라" }, { id: "none", name: "색 없음" }
+];
+const SITE_COLOR_IDS = SITE_COLORS.map(c => c.id);
+function colorOf(s) {
+  if (!s) return "none";
+  if (SITE_COLOR_IDS.includes(s.color)) return s.color;
+  const i = cfg.sites.indexOf(s);
+  return i >= 0 ? SITE_COLOR_IDS[i % 4] : "none";
+}
+
+/* ── 양식 칸의 종류 ────────────────────────────────────────
+   **칸을 더하는 데 코드를 고치지 않는다.** 설정 화면에서 칸을 추가하면
+   작성창·목록·인쇄·엑셀이 모두 따라간다. 새 종류가 정말 필요할 때만 여기에 더한다 */
+const FIELD_TYPES = [
+  { id: "text",     name: "한 줄" },
+  { id: "textarea", name: "여러 줄" },
+  { id: "number",   name: "숫자" },
+  { id: "time",     name: "시각" },
+  { id: "select",   name: "고르기" },
+  { id: "check",    name: "예/아니오" },
+  { id: "table",    name: "표(여러 줄)" }
+];
+
+/* 정문 초소 기본 양식.
+   **처음 열었을 때 채워지는 기본치일 뿐이다** — 실제 서식은 설정 화면에서 고친다.
+   부서에서 쓰는 수기 양식을 받으면 이 목록을 그대로 갈아 끼우면 된다 */
+const FORM_GATE = {
+  id: "f_gate", name: "정문 초소 근무일지",
+  fields: [
+    { key: "worker",  label: "근무자",        type: "text",     required: true,  hint: "" },
+    { key: "handover",label: "인수인계 사항",  type: "textarea", required: false, hint: "앞 근무조에게서 넘겨받은 것" },
+    { key: "patrol",  label: "순찰 기록",      type: "table",    cols: "시각,구역,결과" },
+    { key: "visit",   label: "출입 기록",      type: "table",    cols: "시각,구분,차량·성명,방문처,비고" },
+    { key: "check",   label: "시설물 점검",    type: "table",    cols: "점검 항목,상태,조치" },
+    { key: "flag",    label: "특이사항",       type: "textarea", required: false, flag: true,
+      hint: "여기 적힌 내용은 달력·목록에서 붉게 세워 보여줍니다" },
+    { key: "note",    label: "기타 전달사항",  type: "textarea", required: false, note: true }
+  ]
+};
+
+const DEFAULT_CFG = {
+  version: 1,
+  sites: [
+    { id: "s_gate", name: "정문 초소", color: "blue", formId: "f_gate",
+      shifts: ["주간", "야간"], startDefault: "09:00", endDefault: "18:00" }
+  ],
+  forms: [structuredClone(FORM_GATE)],
+  managers: [],      // 담당자 계정 이메일. **비어 있으면 로그인한 모두가 담당자다**
+  doneDates: [],     // 그 날 확인을 마친 날짜 ("YYYY-MM-DD|사업장id")
+  orgNote: ""
+};
+
+/* 일지 한 건.
+   **서버에서도 한 건이 한 행이다** — 여러 사업장에서 동시에 써도 서로 덮어쓰지 않는다.
+   (시설 예약 대장은 전체를 한 행에 담았는데, 입력자가 한 명이라는 전제였다.
+    근무일지는 그 전제가 성립하지 않으므로 그 구조를 가져오면 안 된다) */
+function newLog(date, siteId) {
+  const site = siteOf(siteId) || cfg.sites[0] || {};
+  return {
+    id: uid(),
+    site_id: site.id || "",
+    log_date: date,
+    shift: (site.shifts || [])[0] || "",
+    start_at: site.startDefault || "09:00",
+    end_at: site.endDefault || "18:00",
+    draft: false,
+    data: {},           // 양식 칸의 값 { 칸key: 값 }
+    author: "",
+    updated_at: null,
+    updated_by: ""
+  };
+}
+
+/* 화면 상태 — 저장되지 않는다 */
+let cfg = structuredClone(DEFAULT_CFG);
+let logs = [];
+const today = new Date();
+const view = {
+  pane: "calendar", setPane: "site",
+  year: today.getFullYear(), month: today.getMonth() + 1,
+  site: "",                 // "" 이면 전체 사업장
+  selected: null,
+  formId: "",
+  listState: "", listShift: "", q: "",
+  printMode: "detail", printDates: []
+};
+const RUNTIME = { server: false, writable: true, saving: false, dirty: false, timer: null, retries: 0 };
+
+/* 예전 자료를 지금 구조로 맞춘다. 구조를 바꿀 때 여기에 한 줄씩 더한다 */
+function migrateCfg(d) {
+  const base = structuredClone(DEFAULT_CFG);
+  const c = Object.assign({}, base, d || {});
+  c.forms = (Array.isArray(c.forms) && c.forms.length ? c.forms : base.forms).map(f => ({
+    id: f.id || uid(), name: f.name || "일지 양식",
+    fields: (Array.isArray(f.fields) ? f.fields : []).map(x => ({
+      key: x.key || uid(), label: x.label || "", type: FIELD_TYPES.some(t => t.id === x.type) ? x.type : "text",
+      required: !!x.required, hint: x.hint || "", options: x.options || "", cols: x.cols || "",
+      flag: !!x.flag, note: !!x.note
+    }))
+  }));
+  c.sites = (Array.isArray(c.sites) && c.sites.length ? c.sites : base.sites).map((s, i) => ({
+    id: s.id || uid(), name: s.name || "사업장",
+    color: SITE_COLOR_IDS.includes(s.color) ? s.color : SITE_COLOR_IDS[i % 4],
+    formId: c.forms.some(f => f.id === s.formId) ? s.formId : c.forms[0].id,
+    shifts: (Array.isArray(s.shifts) && s.shifts.length ? s.shifts : ["주간", "야간"]).map(x => String(x).trim()).filter(Boolean),
+    startDefault: s.startDefault || "09:00", endDefault: s.endDefault || "18:00"
+  }));
+  c.managers = (Array.isArray(c.managers) ? c.managers : []).map(x => String(x).trim().toLowerCase()).filter(Boolean);
+  c.doneDates = (Array.isArray(c.doneDates) ? c.doneDates : []).filter(Boolean);
+  c.version = 1;
+  return c;
+}
+function migrateLog(r) {
+  const x = Object.assign({ draft: false, data: {}, author: "", shift: "", start_at: "09:00", end_at: "18:00" }, r || {});
+  if (!x.data || typeof x.data !== "object") x.data = {};
+  x.draft = !!x.draft;
+  return x;
+}
+
+function readLocal() {
+  try {
+    const c = localStorage.getItem(CFG_KEY);
+    if (c) cfg = migrateCfg(JSON.parse(c));
+    const l = localStorage.getItem(LOG_KEY);
+    if (l) logs = (JSON.parse(l) || []).map(migrateLog);
+  } catch (e) {}
+}
+function mirrorLocal() {
+  try {
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+    localStorage.setItem(LOG_KEY, JSON.stringify(logs));
+  } catch (e) {}
+}
+
+/* ── 저장 시점 ─────────────────────────────────────────────
+   save()      설정값 — 마지막 변경 후 2분 조용하면 올린다 (전송량을 아낀다)
+   saveNow()   저장 버튼 · Ctrl+S · 「설정 저장」 — 기다리지 않고 즉시
+   saveLog()   **일지는 쓰는 즉시 올린다** — 달력에 뜬 일지가 다른 PC 에 안 보이는 시간이 없어야 한다 */
+function save() {
+  mirrorLocal();
+  if (!RUNTIME.server) { setSaveState("이 브라우저에 저장됨 " + hhmm(new Date())); markClean(); return; }
+  if (!RUNTIME.writable) { setSaveState("조회 전용 · 저장 안 됨"); return; }
+  RUNTIME.dirty = true;
+  markDirtyUI();
+  setSaveState("변경됨 · 곧 저장");
+  clearTimeout(RUNTIME.timer);
+  RUNTIME.timer = setTimeout(pushCfg, AUTOSAVE_MS);
+}
+/* silent 를 주면 안내를 띄우지 않는다 (자체 안내가 이미 나가는 곳에서 쓴다).
+   **이벤트 리스너에 직접 넘기지 않는다** — 이벤트 객체가 silent 자리에 들어간다.
+   () => saveNow() 로 감싼다 */
+function saveNow(silent) {
+  const say = m => { if (!silent) toast(m); };
+  mirrorLocal();
+  if (!RUNTIME.server) { setSaveState("저장됨 " + hhmm(new Date())); say("저장했습니다"); return; }
+  if (!RUNTIME.writable) { say("조회 전용이라 저장할 수 없습니다"); return; }
+  if (!RUNTIME.dirty && !RUNTIME.saving) { say("저장할 변경이 없습니다"); return; }
+  clearTimeout(RUNTIME.timer);
+  RUNTIME.dirty = true;
+  if (RUNTIME.saving) { RUNTIME.timer = setTimeout(pushCfg, 300); return; }
+  pushCfg();
+}
+function markDirtyUI() { const b = $("#saveNow"); if (b) b.classList.add("dirty"); }
+function markClean()  { const b = $("#saveNow"); if (b) b.classList.remove("dirty"); }
+
+async function pushCfg() {
+  if (!RUNTIME.dirty || RUNTIME.saving || !RUNTIME.server) return;
+  /* 서버에서 불러오지 못한 채로 저장하면 화면에 있는 옛 자료가 서버의 최신 자료를
+     덮어쓴다. 그럴 바에는 저장하지 않고 보관해 둔다 */
+  if (!SERVER.on) {
+    stashPending();
+    setSaveState("서버를 불러오지 못해 저장을 멈췄습니다");
+    toast("서버에서 자료를 불러오지 못한 상태라 저장하지 않았습니다. 새로고침해 주세요.");
+    return;
+  }
+  RUNTIME.saving = true; RUNTIME.dirty = false;
+  setSaveState("저장 중…");
+  try {
+    await cfgSave();
+    RUNTIME.retries = 0;
+    markClean();
+    setSaveState("서버에 저장됨 " + hhmm(new Date()));
+    if (RUNTIME.dirty) { clearTimeout(RUNTIME.timer); RUNTIME.timer = setTimeout(pushCfg, AUTOSAVE_MS); }
+  } catch (err) {
+    const code = (err && err.code) || "upstream_error";
+    if (code === "not_writer") {
+      stashPending(); RUNTIME.writable = false; applyReadOnly();
+    } else if (RUNTIME.retries < 1) {
+      RUNTIME.retries++; RUNTIME.dirty = true;
+      clearTimeout(RUNTIME.timer);
+      RUNTIME.timer = setTimeout(pushCfg, 3000 + Math.random() * 2000);
+      setSaveState("저장 다시 시도 중…");
+    } else {
+      stashPending();
+      setSaveState("저장 실패");
+      toast("저장하지 못했습니다. 변경 내용을 따로 보관해 두었습니다.");
+    }
+  } finally { RUNTIME.saving = false; }
+}
+
+function setSaveState(t) {
+  const el = $("#saveState"); if (el) el.textContent = t;
+  const n = $("#setSaveNote");
+  if (n && $("#settingsBox") && !$("#settingsBox").hidden) n.textContent = t;
+}
+
+/* 저장 못 한 일지를 임시 보관했다가 다음에 열 때 복구를 제안한다.
+   **저장에 실패했다고 사용자 입력을 버리지 않는다** */
+function stashPending() {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify({ at: Date.now(), logs: logs })); } catch (e) {}
+}
+function takePending() {
+  try {
+    const d = JSON.parse(localStorage.getItem(PENDING_KEY) || "null");
+    if (!d || !Array.isArray(d.logs)) return null;
+    if (Date.now() - d.at > 1000 * 60 * 60 * 24 * 7) { clearPending(); return null; }
+    return d;
+  } catch (e) { return null; }
+}
+function clearPending() { try { localStorage.removeItem(PENDING_KEY); } catch (e) {} }
+
+function offerRecovery() {
+  const p = takePending();
+  if (!p) return;
+  const known = new Set(logs.map(r => r.id));
+  const missing = p.logs.filter(r => !known.has(r.id));
+  if (!missing.length) { clearPending(); return; }
+  const bar = $("#recoverBar");
+  $("#recoverText").textContent = "저장되지 않은 일지 " + missing.length + "건이 남아 있습니다.";
+  bar.hidden = false;
+  $("#recoverApply").onclick = async () => {
+    for (const r of missing) { try { await logSave(r); } catch (e) {} }
+    logs = logs.concat(missing);
+    clearPending(); bar.hidden = true; renderAll();
+    toast(missing.length + "건을 다시 올렸습니다");
+  };
+  $("#recoverDrop").onclick = () => { clearPending(); bar.hidden = true; };
+}
+
+function applyReadOnly() {
+  document.body.classList.add("ro");
+  $("#roBadge").hidden = false;
+  clearTimeout(RUNTIME.timer);
+  RUNTIME.dirty = false; markClean();
+  renderStorageNote();
+  setSaveState("조회 전용");
+}
+
+function renderStorageNote() {
+  const el = $("#storageNote");
+  if (!el) return;
+  if (!RUNTIME.server) { el.textContent = "이 브라우저에만 저장됩니다. ⚙ 설정 에서 서버 주소·키를 넣으면 함께 쓸 수 있습니다."; return; }
+  if (!SERVER.on) el.textContent = "서버에 연결하지 못했습니다. ⚙ 설정 에서 주소와 키를 확인하세요." + (SERVER.err ? " (" + SERVER.err + ")" : "");
+  else if (!RUNTIME.writable) el.textContent = "조회 전용입니다. 일지를 쓰려면 ⚙ 설정 에서 로그인하세요.";
+  else el.textContent = "서버에 저장됩니다. " + Math.round(POLL_MS / 1000) + "초마다 다른 분이 쓴 일지를 확인합니다.";
+}
+
+/* =========================================================
+   1-B. 서버 연결 (Supabase REST)
+   =========================================================
+   **시설 예약 대장과 여기가 가장 크게 다르다.**
+   대장은 전체를 `ledger` 한 행에 담았다 — 입력자가 한 명이라는 전제였다.
+   근무일지는 사업장마다 다른 사람이 동시에 쓰므로 그 구조를 쓰면
+   **한 사람이 저장하는 순간 그 사이 다른 사람이 쓴 일지가 통째로 사라진다.**
+   그래서 일지는 **한 건이 한 행**이다 (`worklog`).
+   덤으로 RLS 에 `site_id` 조건을 걸어 "자기 사업장 것만 쓰기" 를 서버가 막아준다 —
+   화면에서 가르는 것이 아니라 진짜 권한 분리가 된다.
+
+   SDK 를 쓰지 않고 REST 를 직접 fetch 한다 (단일 파일 제약).
+   ========================================================= */
+const SERVER = { token: null, refresh: null, email: null, seen: null, poll: null, on: false, err: "" };
+
+function serverCfg() {
+  try {
+    const raw = localStorage.getItem(SERVER_CFG_KEY);
+    if (raw) { const c = JSON.parse(raw); if (c && c.url && c.anonKey) return { url: normalizeUrl(c.url), anonKey: String(c.anonKey).trim() }; }
+  } catch (e) {}
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) return { url: normalizeUrl(SUPABASE_URL), anonKey: SUPABASE_ANON_KEY.trim() };
+  return null;
+}
+/* 주소에서 뒤에 붙은 경로를 떼고 프로젝트 기본 주소만 남긴다.
+   sbFetch / serverLogin 이 "/rest/v1/..." "/auth/v1/..." 를 스스로 붙이기 때문에,
+   대시보드에서 복사한 ".../rest/v1" 을 그대로 넣으면 ".../rest/v1/auth/v1/token" 이 되어
+   로그인이 404 로 실패한다. **이 정규화를 빼지 않는다** */
+function normalizeUrl(url) {
+  return String(url || "").trim().replace(/\/+$/, "")
+    .replace(/\/(rest|auth|storage|realtime|functions)\/v\d+$/i, "").replace(/\/+$/, "");
+}
+function saveServerCfg(url, anonKey) {
+  try { localStorage.setItem(SERVER_CFG_KEY, JSON.stringify({ url: normalizeUrl(url), anonKey: String(anonKey).trim() })); } catch (e) {}
+}
+function loadSession() {
+  try { const d = JSON.parse(localStorage.getItem(SERVER_SESSION_KEY) || "null");
+        if (d && d.token) { SERVER.token = d.token; SERVER.refresh = d.refresh; SERVER.email = d.email; } } catch (e) {}
+}
+function storeSession() {
+  try {
+    if (SERVER.token) localStorage.setItem(SERVER_SESSION_KEY, JSON.stringify({ token: SERVER.token, refresh: SERVER.refresh, email: SERVER.email }));
+    else localStorage.removeItem(SERVER_SESSION_KEY);
+  } catch (e) {}
+}
+
+/* **헤더 규칙에 주의.** publishable 키는 Authorization: Bearer 로 보내면 거부된다.
+   apikey 헤더에만 싣고, Authorization 은 로그인한 사용자의 access token 이 있을 때만 붙인다.
+   이 규칙을 바꾸면 새 키에서 401 이 난다 */
+async function sbFetch(path, opts) {
+  const c = serverCfg();
+  if (!c) throw new Error("서버 설정 없음");
+  const o = opts || {};
+  const headers = Object.assign({ apikey: c.anonKey, "Content-Type": "application/json" }, o.headers || {});
+  if (SERVER.token) headers.Authorization = "Bearer " + SERVER.token;
+  return fetch(c.url + path, Object.assign({}, o, { headers: headers }));
+}
+
+async function serverLogin(email, password) {
+  const c = serverCfg();
+  const res = await fetch(c.url + "/auth/v1/token?grant_type=password", {
+    method: "POST",
+    headers: { apikey: c.anonKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email, password: password })
+  });
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok || !d.access_token) {
+    /* 그냥 "로그인하지 못했습니다" 만 뜨면 무엇을 고쳐야 할지 알 수가 없다 */
+    let msg = d.error_description || d.msg || d.error || d.message || "";
+    if (!msg) {
+      if (res.status === 404) msg = "주소가 잘못되었습니다. Project URL 은 https://xxxx.supabase.co 까지만 넣습니다 (/rest/v1 은 빼세요)";
+      else if (res.status === 401) msg = "키가 잘못되었습니다. Publishable key 를 다시 확인하세요";
+      else msg = "서버가 " + res.status + " 을 돌려줬습니다";
+    }
+    throw new Error(msg);
+  }
+  SERVER.token = d.access_token; SERVER.refresh = d.refresh_token; SERVER.email = email;
+  storeSession();
+  return d;
+}
+/* 지금 쓰고 있는 토큰은 건드리지 않는다 — 비밀번호가 틀렸을 때 로그인이 풀리면 안 된다.
+   **verifyPassword 가 SERVER.token 을 갈아끼우게 만들지 않는다** */
+async function verifyPassword(password) {
+  const c = serverCfg();
+  if (!c || !SERVER.email) return false;
+  try {
+    const res = await fetch(c.url + "/auth/v1/token?grant_type=password", {
+      method: "POST",
+      headers: { apikey: c.anonKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: SERVER.email, password: password })
+    });
+    const d = await res.json().catch(() => ({}));
+    return !!(res.ok && d.access_token);
+  } catch (e) { return false; }
+}
+async function serverRefresh() {
+  if (!SERVER.refresh) return false;
+  const c = serverCfg();
+  const res = await fetch(c.url + "/auth/v1/token?grant_type=refresh_token", {
+    method: "POST",
+    headers: { apikey: c.anonKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: SERVER.refresh })
+  });
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok || !d.access_token) { serverLogout(); return false; }
+  SERVER.token = d.access_token; SERVER.refresh = d.refresh_token; storeSession();
+  return true;
+}
+function serverLogout() { SERVER.token = null; SERVER.refresh = null; SERVER.email = null; storeSession(); }
+
+/* 조회 요청. access token 은 한 시간쯤 지나면 만료되는데, 그 토큰을 그대로 붙이면
+   401 이 와서 **조회까지 막힌다.** 갱신을 한 번 해보고, 그래도 안 되면
+   상한 토큰을 버리고 익명으로 다시 읽는다.
+   이 복구가 없으면 오래 켜 둔 PC 에서 "서버 연결 안 됨" 과 함께 자료가
+   통째로 사라진 것처럼 보인다. **serverLoad·serverPoll 에서 sbFetch 를 직접 부르지 않는다** */
+async function sbGet(path) {
+  let res = await sbFetch(path);
+  if ((res.status === 401 || res.status === 403) && SERVER.token) {
+    if (await serverRefresh()) res = await sbFetch(path);
+    if (res.status === 401 || res.status === 403) {
+      serverLogout();
+      RUNTIME.writable = false;
+      res = await sbFetch(path);
+    }
+  }
+  return res;
+}
+
+/* ── 설정 (한 행) ─────────────────────────────────────────
+   사업장·양식은 담당자만 고치고 자주 바뀌지 않으므로 한 행에 담아도 된다.
+   **일지는 그렇지 않다 — 아래 logSave 참고** */
+async function cfgLoad() {
+  const res = await sbGet("/rest/v1/" + T_CFG + "?id=eq." + CFG_ID + "&select=data");
+  if (!res.ok) throw new Error("설정을 불러오지 못했습니다 (" + res.status + ")");
+  const rows = await res.json();
+  return rows.length ? migrateCfg(rows[0].data || {}) : null;
+}
+async function cfgSave() {
+  const body = [{ id: CFG_ID, data: cfg, updated_at: new Date().toISOString(), updated_by: SERVER.email || "" }];
+  let res = await sbFetch("/rest/v1/" + T_CFG, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify(body)
+  });
+  if (res.status === 401 && await serverRefresh()) {
+    res = await sbFetch("/rest/v1/" + T_CFG, {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(body)
+    });
+  }
+  if (res.status === 401 || res.status === 403) { const e = new Error("권한 없음"); e.code = "not_writer"; throw e; }
+  if (!res.ok) { const e = new Error("저장 실패 (" + res.status + ")"); e.code = "upstream_error"; throw e; }
+  return true;
+}
+
+/* ── 일지 (한 건이 한 행) ──────────────────────────────────
+   보이는 달 것만 받아온다. 전체를 받지 않는다 — 몇 해 치가 쌓이면 전송량이 샌다 */
+function monthRange(y, m) {
+  const last = new Date(y, m, 0).getDate();
+  return [ymd(y, m, 1), ymd(y, m, last)];
+}
+async function logsLoad(y, m) {
+  const [a, b] = monthRange(y, m);
+  const res = await sbGet("/rest/v1/" + T_LOG +
+    "?log_date=gte." + a + "&log_date=lte." + b +
+    "&select=*&order=log_date.asc,start_at.asc");
+  if (!res.ok) throw new Error("일지를 불러오지 못했습니다 (" + res.status + ")");
+  const rows = await res.json();
+  SERVER.seen = rows.reduce((mx, r) => (r.updated_at > mx ? r.updated_at : mx), "");
+  return rows.map(migrateLog);
+}
+/* 한 건만 올린다. **전체를 올리지 않는다** — 그래야 남이 쓴 일지가 지워지지 않는다 */
+async function logSave(r) {
+  r.updated_at = new Date().toISOString();
+  r.updated_by = SERVER.email || "";
+  mirrorLocal();
+  if (!RUNTIME.server) return true;
+  if (!RUNTIME.writable) { const e = new Error("권한 없음"); e.code = "not_writer"; throw e; }
+  const send = () => sbFetch("/rest/v1/" + T_LOG, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify([r])
+  });
+  let res = await send();
+  if (res.status === 401 && await serverRefresh()) res = await send();
+  if (res.status === 401 || res.status === 403) { const e = new Error("권한 없음"); e.code = "not_writer"; throw e; }
+  if (!res.ok) { const e = new Error("저장 실패 (" + res.status + ")"); e.code = "upstream_error"; throw e; }
+  SERVER.seen = r.updated_at;
+  return true;
+}
+async function logDelete(id) {
+  logs = logs.filter(x => x.id !== id);
+  mirrorLocal();
+  if (!RUNTIME.server) return true;
+  let res = await sbFetch("/rest/v1/" + T_LOG + "?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+  if (res.status === 401 && await serverRefresh()) res = await sbFetch("/rest/v1/" + T_LOG + "?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+  if (!res.ok && res.status !== 404) { const e = new Error("삭제 실패 (" + res.status + ")"); e.code = "upstream_error"; throw e; }
+  return true;
+}
+
+/* 다른 사람이 쓴 일지가 있는지 확인 — 가장 최근 updated_at 하나만 받아서 가볍게.
+   **전체를 주기적으로 통째로 받지 않는다** (무료 플랜 전송량이 그것 때문에 샌다) */
+async function serverPoll() {
+  if (!SERVER.token) return;                                   // 조회 전용은 일지를 받지 않는다
+  if (RUNTIME.saving || RUNTIME.dirty) return;                 // 내 변경이 먼저다
+  if (!$("#modal").hidden || !$("#pwBox").hidden) return;      // 쓰는 중에는 화면을 바꾸지 않는다
+  try {
+    const [a, b] = monthRange(view.year, view.month);
+    const res = await sbGet("/rest/v1/" + T_LOG +
+      "?log_date=gte." + a + "&log_date=lte." + b +
+      "&select=updated_at,updated_by&order=updated_at.desc&limit=1");
+    if (!res.ok) return;
+    const rows = await res.json();
+    const top = rows.length ? rows[0].updated_at : "";
+    if (top === SERVER.seen) return;
+    const fresh = await logsLoad(view.year, view.month);
+    logs = fresh;
+    mirrorLocal(); renderAll();
+    setSaveState("갱신됨 " + hhmm(new Date()));
+    const who = rows.length ? (rows[0].updated_by || "") : "";
+    toast((who ? who + "님이 " : "") + "방금 쓴 일지를 불러왔습니다");
+  } catch (e) { /* 일시적인 통신 실패는 넘긴다 */ }
+}
+function startPolling() {
+  clearInterval(SERVER.poll);
+  SERVER.poll = setInterval(serverPoll, POLL_MS);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) serverPoll(); });
+}
+
+/* =========================================================
+   2. 유틸
+   ========================================================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+const pad = n => String(n).padStart(2, "0");
+const hhmm = d => pad(d.getHours()) + ":" + pad(d.getMinutes());
+const DOW = ["일", "월", "화", "수", "목", "금", "토"];
+
+function ymd(y, m, d) { return y + "-" + pad(m) + "-" + pad(d); }
+function parseYmd(s) { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, m - 1, d); }
+function toMin(t) { if (!t) return 0; const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); }
+/* **반드시 esc() 를 거쳐 innerHTML 에 넣는다.** 렌더는 전부 문자열 조합이다 */
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function textWidth(v) {
+  let n = 0;
+  for (const ch of String(v == null ? "" : v)) n += /[ᄀ-ᇿ　-〿가-힯＀-￯]/.test(ch) ? 2 : 1;
+  return n;
+}
+
+/* ── 공휴일 ────────────────────────────────────────────────
+   근무일지에서는 요금을 매기지 않으므로 **표시용**이다 (토·일·공휴일 글씨 색).
+   음력 계산을 코드로 넣지 않는다 — 표가 더 정확하고 확인하기 쉽다.
+   2041년 이후를 쓰게 되면 LUNAR_HOLIDAYS 에 줄을 더한다 */
+const FIXED_HOLIDAYS = {
+  "01-01": "신정", "03-01": "삼일절", "05-05": "어린이날", "06-06": "현충일",
+  "08-15": "광복절", "10-03": "개천절", "10-09": "한글날", "12-25": "성탄절"
+};
+const LUNAR_HOLIDAY_NAMES = ["설날 연휴", "설날", "설날 연휴", "부처님오신날", "추석 연휴", "추석", "추석 연휴"];
+const LUNAR_HOLIDAYS = {
+  2026:["02-16","02-17","02-18","05-24","09-24","09-25","09-26"],
+  2027:["02-06","02-07","02-08","05-13","09-14","09-15","09-16"],
+  2028:["01-26","01-27","01-28","05-02","10-02","10-03","10-04"],
+  2029:["02-12","02-13","02-14","05-20","09-21","09-22","09-23"],
+  2030:["02-02","02-03","02-04","05-09","09-11","09-12","09-13"],
+  2031:["01-22","01-23","01-24","05-28","09-30","10-01","10-02"],
+  2032:["02-10","02-11","02-12","05-16","09-18","09-19","09-20"],
+  2033:["01-30","01-31","02-01","05-06","09-07","09-08","09-09"],
+  2034:["02-18","02-19","02-20","05-25","09-26","09-27","09-28"],
+  2035:["02-07","02-08","02-09","05-15","09-15","09-16","09-17"],
+  2036:["01-27","01-28","01-29","05-03","10-03","10-04","10-05"],
+  2037:["02-14","02-15","02-16","05-22","09-23","09-24","09-25"],
+  2038:["02-03","02-04","02-05","05-11","09-12","09-13","09-14"],
+  2039:["01-23","01-24","01-25","04-30","10-01","10-02","10-03"],
+  2040:["02-11","02-12","02-13","05-18","09-20","09-21","09-22"]
+};
+function holidayName(dateStr) {
+  const md = String(dateStr).slice(5);
+  if (FIXED_HOLIDAYS[md]) return FIXED_HOLIDAYS[md];
+  const arr = LUNAR_HOLIDAYS[Number(String(dateStr).slice(0, 4))];
+  if (arr) { const i = arr.indexOf(md); if (i >= 0) return LUNAR_HOLIDAY_NAMES[i]; }
+  return "";
+}
+function isHoliday(d) { return !!holidayName(d); }
+/* 요일 글씨 색 — 토 파랑, 일·공휴일 빨강. **공휴일이 토요일이면 빨강이 이긴다.**
+   글씨에만 쓰고 칸 전체를 물들이지 않는다 (칸 색은 사업장을 뜻한다) */
+function dowClassOf(dateStr) {
+  const w = parseYmd(dateStr).getDay();
+  if (w === 0 || isHoliday(dateStr)) return "dow-sun";
+  if (w === 6) return "dow-sat";
+  return "";
+}
+
+function siteOf(id) { return cfg.sites.find(s => s.id === id) || null; }
+function formOf(id) { return cfg.forms.find(f => f.id === id) || cfg.forms[0] || { fields: [] }; }
+function formOfSite(siteId) { const s = siteOf(siteId); return formOf(s ? s.formId : ""); }
+/* 지금 고른 사업장으로 거른다. view.site 가 "" 면 전체 */
+function inView(r) { return !view.site || r.site_id === view.site; }
+
+/* 그 날 확인을 마쳤다는 표시. **날짜+사업장 단위**다 —
+   그 날 그 초소의 처리가 끝났는지를 보는 것이라서 그렇다 */
+function doneKey(date, siteId) { return date + "|" + (siteId || ""); }
+function isDone(date, siteId) { return (cfg.doneDates || []).includes(doneKey(date, siteId)); }
+function toggleDone(date, siteId) {
+  const k = doneKey(date, siteId);
+  const on = isDone(date, siteId);
+  cfg.doneDates = on ? cfg.doneDates.filter(x => x !== k) : cfg.doneDates.concat([k]).sort();
+  return !on;
+}
+
+/* ── 역할 ──────────────────────────────────────────────────
+   manager 담당자 — 사업장·양식까지 전부 고친다
+   writer  작성자 — 일지만 쓴다
+   viewer  로그인하지 않은 사람 — **일지 본문을 보여주지 않는다**
+
+   **이 구분은 화면에서 가르는 것이고, 서버는 RLS 가 막는다.**
+   화면 규칙만 믿지 말고 RLS 를 반드시 켠다 (서버설치안내.md 참고) */
+function currentRole() {
+  if (!SERVER.token || !RUNTIME.writable) return "viewer";
+  const list = cfg.managers || [];
+  /* **목록이 비어 있으면 로그인한 모두가 담당자다.** 계정을 만들고 목록에 넣는 것을
+     빠뜨리면 그 계정이 전권을 갖는다 — 설치 안내에도 경고로 적어 둔다 */
+  if (!list.length) return "manager";
+  return list.includes(String(SERVER.email || "").trim().toLowerCase()) ? "manager" : "writer";
+}
+function canEditCfg() { return currentRole() === "manager"; }
+function canWriteLog() { return currentRole() !== "viewer"; }
+
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg; el.hidden = false;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.hidden = true; }, 2400);
+}
+
+/* =========================================================
+   3. 양식(폼) 엔진
+   =========================================================
+   시설 예약 대장에서 「이용료 계산」 이 있던 자리다.
+   여기서는 계산 대신 **양식 정의대로 칸을 그리고 값을 읽는다.**
+   칸을 더하는 데 코드를 고칠 필요가 없어야 한다 — 그것이 이 절의 목적이다.
+   ========================================================= */
+
+/* 표 형식 칸의 열 이름 */
+function tableCols(f) {
+  return String(f.cols || "").split(",").map(x => x.trim()).filter(Boolean);
+}
+function selectOpts(f) {
+  return String(f.options || "").split(",").map(x => x.trim()).filter(Boolean);
+}
+
+/* 값 하나를 사람이 읽는 한 줄로 바꾼다. 목록·인쇄·엑셀이 모두 이것을 쓴다 —
+   화면에서 본 것과 뽑은 종이가 달라지지 않게 하려는 것이다 */
+function fieldText(f, v) {
+  if (v == null || v === "") return "";
+  if (f.type === "check") return v ? "예" : "";
+  if (f.type === "table") {
+    const cols = tableCols(f);
+    const rows = Array.isArray(v) ? v : [];
+    return rows.filter(row => row.some(c => String(c || "").trim()))
+      .map(row => cols.map((c, i) => c + " " + (row[i] || "")).join(" · ")).join("\n");
+  }
+  return String(v);
+}
+/* 그 일지에서 「특이사항」 으로 표시한 칸의 값. 달력·목록에서 붉게 세운다 */
+function flagTextOf(r) {
+  const form = formOfSite(r.site_id);
+  return form.fields.filter(f => f.flag)
+    .map(f => fieldText(f, r.data[f.key])).filter(Boolean).join("\n");
+}
+function noteTextOf(r) {
+  const form = formOfSite(r.site_id);
+  return form.fields.filter(f => f.note)
+    .map(f => fieldText(f, r.data[f.key])).filter(Boolean).join("\n");
+}
+/* 달력 칩 아랫줄에 띄울 값 — 첫 번째 한 줄 칸(대개 근무자).
+   **빈 줄이 되면 안 되므로** 없으면 근무조로 대신한다 */
+function chipLabelOf(r) {
+  const form = formOfSite(r.site_id);
+  const f = form.fields.find(x => x.type === "text");
+  const v = f ? String(r.data[f.key] || "").trim() : "";
+  return v || r.shift || "(내용 없음)";
+}
+
+/* 작성창에 양식 칸을 그린다 */
+function fieldHtml(f, v) {
+  const id = "ff_" + f.key;
+  const lab = '<label for="' + id + '">' + esc(f.label) + (f.required ? ' <span style="color:var(--alert)">*</span>' : "") + "</label>";
+  const hint = f.hint ? '<span class="hint">' + esc(f.hint) + "</span>" : "";
+  if (f.type === "textarea")
+    return '<div class="field" data-fk="' + esc(f.key) + '">' + lab +
+      '<textarea id="' + id + '" rows="3">' + esc(v || "") + "</textarea>" + hint + "</div>";
+  if (f.type === "number")
+    return '<div class="field" data-fk="' + esc(f.key) + '">' + lab +
+      '<input type="number" class="mono" id="' + id + '" value="' + esc(v == null ? "" : v) + '">' + hint + "</div>";
+  if (f.type === "check")
+    return '<div class="field" data-fk="' + esc(f.key) + '"><label class="togg"><input type="checkbox" id="' + id + '"' +
+      (v ? " checked" : "") + "><span>" + esc(f.label) + "</span></label>" + hint + "</div>";
+  if (f.type === "select")
+    return '<div class="field" data-fk="' + esc(f.key) + '">' + lab + '<select id="' + id + '">' +
+      '<option value=""></option>' +
+      selectOpts(f).map(o => '<option value="' + esc(o) + '"' + (o === v ? " selected" : "") + ">" + esc(o) + "</option>").join("") +
+      "</select>" + hint + "</div>";
+  if (f.type === "time") {
+    /* **시각은 24시간제 시·분 <select> 두 개다.** <input type="time"> 은 브라우저
+       지역 설정에 따라 오전/오후로 나오는데 코드로 막을 수 없다 —
+       담당자가 헷갈린다고 해서 바꿨다. **type="time" 으로 되돌리지 않는다** */
+    const [h, m] = String(v || "00:00").split(":").map(Number);
+    const hrs = Array.from({ length: 24 }, (_, i) => '<option value="' + i + '"' + (i === (h || 0) ? " selected" : "") + ">" + pad(i) + "</option>").join("");
+    const mins = Array.from({ length: 60 / TIME_MIN_STEP }, (_, i) => {
+      const mm = i * TIME_MIN_STEP;
+      return '<option value="' + mm + '"' + (mm === Math.floor((m || 0) / TIME_MIN_STEP) * TIME_MIN_STEP ? " selected" : "") + ">" + pad(mm) + "</option>";
+    }).join("");
+    return '<div class="field" data-fk="' + esc(f.key) + '">' + lab +
+      '<div class="timepick"><select id="' + id + 'H">' + hrs + '</select><span>시</span>' +
+      '<select id="' + id + 'M">' + mins + "</select><span>분</span></div>" + hint + "</div>";
+  }
+  if (f.type === "table") {
+    const cols = tableCols(f);
+    const rows = Array.isArray(v) && v.length ? v : [cols.map(() => "")];
+    return '<div class="field" data-fk="' + esc(f.key) + '">' + lab +
+      '<div class="gtab" data-gt="' + esc(f.key) + '">' +
+        "<table><thead><tr>" + cols.map(c => "<th>" + esc(c) + "</th>").join("") + '<th class="x"></th></tr></thead>' +
+        "<tbody>" + rows.map(row => gRowHtml(cols, row)).join("") + "</tbody></table>" +
+        '<div class="gfoot"><button type="button" class="btn btn-sm" data-gadd="' + esc(f.key) + '">+ 줄 추가</button>' +
+        '<span class="hint">빈 줄은 저장할 때 자동으로 빠집니다</span></div>' +
+      "</div>" + hint + "</div>";
+  }
+  return '<div class="field" data-fk="' + esc(f.key) + '">' + lab +
+    '<input id="' + id + '" value="' + esc(v || "") + '">' + hint + "</div>";
+}
+function gRowHtml(cols, row) {
+  return "<tr>" + cols.map((c, i) => '<td><input value="' + esc((row || [])[i] || "") + '"></td>').join("") +
+    '<td class="x"><button type="button" class="btn btn-quiet btn-sm" data-gdel="1" title="이 줄 지우기">✕</button></td></tr>';
+}
+
+/* 작성창에서 값을 읽어 온다 */
+function readField(f) {
+  const id = "#ff_" + CSS.escape(f.key);
+  if (f.type === "check")   { const el = $(id); return el ? el.checked : false; }
+  if (f.type === "number")  { const el = $(id); const v = el ? el.value : ""; return v === "" ? null : Number(v); }
+  if (f.type === "time")    { const h = $(id + "H"), m = $(id + "M"); return h && m ? pad(Number(h.value)) + ":" + pad(Number(m.value)) : ""; }
+  if (f.type === "table") {
+    const box = $('[data-gt="' + CSS.escape(f.key) + '"]');
+    if (!box) return [];
+    /* 빈 줄은 버린다 — 안 그러면 표에 빈 칸이 줄줄이 쌓인다 */
+    return $$("tbody tr", box).map(tr => $$("input", tr).map(i => i.value.trim()))
+      .filter(row => row.some(c => c));
+  }
+  const el = $(id);
+  return el ? el.value.trim() : "";
+}
+
+/* =========================================================
+   4. 달력
+   =========================================================
+   **달력 칸 만드는 코드를 인쇄용으로 따로 두지 않는다** — calCellsHtml() 하나가
+   화면과 인쇄를 모두 만든다. 종이에 찍힌 것과 화면에 뜬 것이 달라지지 않게 하려는 것이다.
+   ========================================================= */
+const CAL_CHIPS = 3;   // 한 칸에 보여줄 개수. 인쇄판은 감추지 않고 다 편다 (cap:0)
+
+/* 일지를 사업장 차례 → 시작 시각 차례로 줄 세운다.
+   같은 초소 것이 모여 있어야 한눈에 들어온다 */
+function bySite(a, b) {
+  const ia = cfg.sites.findIndex(s => s.id === a.site_id);
+  const ib = cfg.sites.findIndex(s => s.id === b.site_id);
+  return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || toMin(a.start_at) - toMin(b.start_at);
+}
+/* 목록·내보내기는 시간순이다 — 대장은 시간 흐름대로 읽는 것이라서 그렇다.
+   분으로 비교하므로 "9:00" 처럼 앞의 0 이 빠져도 맞게 정렬된다 */
+function byDateTime(a, b) {
+  return String(a.log_date).localeCompare(String(b.log_date)) || toMin(a.start_at) - toMin(b.start_at);
+}
+function logsOn(date) { return logs.filter(r => r.log_date === date && inView(r)).sort(bySite); }
+
+function calCellsHtml(o) {
+  const opt = Object.assign({ cap: CAL_CHIPS, live: true }, o || {});
+  /* **로그인하지 않은 사람에게는 칩을 그리지 않는다.** 칩 아랫줄은 근무자 이름이라
+     감추기만 하면 개발자도구로 소스에서 그대로 읽힌다 — 건수만 남긴다.
+     (우측 상세·목록도 같은 원칙으로 renderRail·renderList 첫 줄에서 막는다) */
+  const hideBody = currentRole() === "viewer";
+  const first = new Date(view.year, view.month - 1, 1);
+  const start = new Date(first); start.setDate(1 - first.getDay());
+  const cells = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+    const key = ymd(y, m, day);
+    const out = m !== view.month || y !== view.year;
+    /* **인쇄판에는 이번 달 날짜만 찍는다.** 앞뒤 달 칸은 자리만 남기고 비운다 —
+       요일 자리가 어긋나지 않게 칸 자체는 지우지 않는다 */
+    if (out && !opt.live) { cells.push('<div class="cell blank"></div>'); continue; }
+
+    const rows = logsOn(key);
+    const w = d.getDay();
+    const hol = holidayName(key);
+    const done = view.site ? isDone(key, view.site) : (cfg.sites.length === 1 && isDone(key, cfg.sites[0].id));
+    const cls = ["cell"];
+    if (out) cls.push("out");
+    if (w === 6) cls.push("sat");
+    if (w === 0) cls.push("sun");
+    if (hol) cls.push("hol");
+    if (key === ymd(today.getFullYear(), today.getMonth() + 1, today.getDate())) cls.push("today");
+    if (opt.live && view.selected === key) cls.push("selected");
+    if (done) cls.push("is-done");
+
+    const shown = hideBody ? [] : (opt.cap ? rows.slice(0, opt.cap) : rows);
+    const chips = shown.map(r => {
+      const s = siteOf(r.site_id) || {};
+      const label = chipLabelOf(r);
+      const title = [s.name, r.shift, r.start_at + "–" + r.end_at, label].filter(Boolean).join(" · ");
+      return '<' + (opt.live ? "button" : "div") + ' type="button" class="chip' + (r.draft ? " is-draft" : "") +
+        '" data-sc="' + esc(colorOf(s)) + '"' + (opt.live ? ' data-open="' + esc(r.id) + '"' : "") +
+        ' title="' + esc(title) + '">' +
+        '<span><b class="t">' + esc(r.start_at) + "–" + esc(r.end_at) + "</b>" + esc(r.shift || s.name || "") + "</span>" +
+        '<span class="n">' + esc(label) + "</span>" +
+        "</" + (opt.live ? "button" : "div") + ">";
+    }).join("");
+    const more = (!hideBody && opt.cap && rows.length > opt.cap)
+      ? '<span class="chip-more">+' + (rows.length - opt.cap) + "건 더</span>" : "";
+
+    cells.push(
+      '<' + (opt.live ? "button" : "div") + ' type="button" class="' + cls.join(" ") + '"' +
+      (opt.live ? ' data-date="' + key + '"' : "") + ">" +
+        '<div class="cell-date"><b>' + day + "</b>" +
+          (hol ? '<span class="holiday-tag">' + esc(hol) + "</span>" : "") +
+          (rows.length ? '<span class="cell-count">' + rows.length + "건</span>" : "") +
+        "</div>" + chips + more +
+        (done ? '<span class="cell-done">✓</span>' : "") +
+      "</" + (opt.live ? "button" : "div") + ">"
+    );
+  }
+  return cells.join("");
+}
+
+function renderCalendar() {
+  $("#calTitle").innerHTML = view.year + "년 " + view.month + "월" +
+    '<small>' + esc(view.site ? (siteOf(view.site) || {}).name || "" : "전체 사업장") + "</small>";
+  $("#calLegend").innerHTML = cfg.sites
+    .filter(s => !view.site || s.id === view.site)
+    .map(s => '<span class="site" data-sc="' + esc(colorOf(s)) + '"><i></i>' + esc(s.name) + "</span>").join("");
+  $("#calGrid").innerHTML = calCellsHtml({ cap: CAL_CHIPS, live: true });
+  renderSummary();
+}
+
+function monthLogs() {
+  const [a, b] = monthRange(view.year, view.month);
+  return logs.filter(r => r.log_date >= a && r.log_date <= b && inView(r)).sort(byDateTime);
+}
+
+function renderSummary() {
+  const rows = monthLogs();
+  const days = new Set(rows.map(r => r.log_date)).size;
+  const flagged = rows.filter(r => flagTextOf(r)).length;
+  const drafts = rows.filter(r => r.draft).length;
+  $("#summary").innerHTML =
+    stat("작성된 일지", rows.length + '<small>건</small>') +
+    stat("일지가 있는 날", days + '<small>일</small>') +
+    stat("특이사항", flagged + '<small>건</small>') +
+    stat("임시저장", drafts + '<small>건</small>');
+}
+function stat(t, v) { return '<div class="stat"><dt>' + esc(t) + "</dt><dd>" + v + "</dd></div>"; }
+
+/* =========================================================
+   5. 우측 상세
+   =========================================================
+   **특이사항은 일정 바로 밑에 강조해서 붙인다.** 담당자가 아닌 직원이 여기부터 본다 —
+   이 표시를 빼지 않는다.
+   ========================================================= */
+function renderRail() {
+  const body = $("#railBody");
+  const doneBtn = $("#railDone");
+
+  /* 로그인하지 않은 사람에게는 **일지 본문을 그리지 않는다.**
+     감추기만 하면 개발자도구로 들여다볼 수 있다 — 근무자 이름과 출입 기록은
+     개인정보라서 화면에서 빼는 것으로 그치면 안 된다 */
+  if (currentRole() === "viewer") {
+    $("#railDate").textContent = "로그인이 필요합니다";
+    $("#railSub").textContent = "";
+    doneBtn.hidden = true;
+    body.innerHTML = '<div class="empty">근무일지에는 근무자 이름과 출입 기록이 들어 있어<br>로그인한 직원만 볼 수 있습니다.<br><br>⚙ 설정 에서 로그인하세요.</div>';
+    return;
+  }
+
+  if (!view.selected) {
+    $("#railDate").textContent = "날짜를 고르세요";
+    $("#railSub").textContent = "";
+    doneBtn.hidden = true;
+    body.innerHTML = '<div class="empty">달력에서 날짜를 누르면 그 날 일지가 여기 나옵니다.</div>';
+    return;
+  }
+
+  const d = view.selected;
+  const w = parseYmd(d).getDay();
+  const hol = holidayName(d);
+  $("#railDate").textContent = d + " (" + DOW[w] + ")";
+  $("#railSub").textContent = hol || "";
+  const siteId = view.site || (cfg.sites.length === 1 ? cfg.sites[0].id : "");
+  doneBtn.hidden = !siteId || !canWriteLog();
+  if (siteId) {
+    const on = isDone(d, siteId);
+    doneBtn.textContent = on ? "확인 해제" : "확인";
+    doneBtn.classList.toggle("btn-primary", !on);
+  }
+
+  const rows = logsOn(d);
+  if (!rows.length) {
+    body.innerHTML = '<div class="empty">이 날 작성된 일지가 없습니다.</div>';
+    return;
+  }
+  body.innerHTML = rows.map(r => {
+    const s = siteOf(r.site_id) || {};
+    const form = formOfSite(r.site_id);
+    const flag = flagTextOf(r), note = noteTextOf(r);
+    /* 표 형식과 특이사항·기타는 따로 그리므로 여기서는 뺀다 */
+    const meta = form.fields
+      .filter(f => !f.flag && !f.note && f.type !== "table" && f.type !== "textarea")
+      .map(f => { const t = fieldText(f, r.data[f.key]); return t ? esc(f.label) + " " + esc(t) : ""; })
+      .filter(Boolean);
+    const longs = form.fields
+      .filter(f => !f.flag && !f.note && f.type === "textarea")
+      .map(f => { const t = fieldText(f, r.data[f.key]); return t ? "<b>" + esc(f.label) + "</b> " + esc(t) : ""; })
+      .filter(Boolean);
+    const tables = form.fields
+      .filter(f => f.type === "table")
+      .map(f => {
+        const rowsIn = Array.isArray(r.data[f.key]) ? r.data[f.key] : [];
+        return rowsIn.length ? esc(f.label) + " " + rowsIn.length + "줄" : "";
+      }).filter(Boolean);
+
+    return '<div class="item" data-sc="' + esc(colorOf(s)) + '">' +
+      '<div class="item-top">' +
+        '<span class="item-time">' + esc(r.start_at) + "–" + esc(r.end_at) + "</span>" +
+        (r.shift ? '<span class="tag">' + esc(r.shift) + "</span>" : "") +
+        (r.draft ? '<span class="tag draft">임시저장</span>' : "") +
+        '<span class="item-site">' + esc(s.name || "") + "</span>" +
+      "</div>" +
+      (meta.length ? '<div class="item-meta">' + meta.map(x => "<span>" + x + "</span>").join("") + "</div>" : "") +
+      (tables.length ? '<div class="item-meta">' + tables.map(x => "<span>" + x + "</span>").join("") + "</div>" : "") +
+      (longs.length ? '<div class="item-meta" style="display:block;white-space:pre-wrap">' + longs.join("<br>") + "</div>" : "") +
+      (flag ? '<div class="item-flag"><b>특이사항</b>' + esc(flag) + "</div>" : "") +
+      (note ? '<div class="item-note"><b>전달사항</b>' + esc(note) + "</div>" : "") +
+      '<div class="item-actions">' +
+        '<button type="button" class="btn btn-sm" data-open="' + esc(r.id) + '">수정</button>' +
+        '<button type="button" class="btn btn-sm" data-copy="' + esc(r.id) + '">복제</button>' +
+        (r.updated_by ? '<span class="hint" style="margin-left:auto;font-size:10.5px;color:var(--faint)">' + esc(r.updated_by) + "</span>" : "") +
+      "</div>" +
+    "</div>";
+  }).join("");
+}
+
+/* =========================================================
+   6. 목록
+   =========================================================
+   **열 정의는 LIST_COLS 한 곳에만 둔다** — 화면·인쇄·엑셀·CSV 가 모두 그것을 쓴다.
+   목록 열을 이 밖에서 따로 만들면 화면과 종이가 어긋난다.
+   ========================================================= */
+/* 고정 열. 양식 칸은 그 뒤에 자동으로 붙는다 */
+const LIST_COLS = {
+  done:  { label: "완료", cls: "done" },
+  date:  { label: "날짜", cls: "t" },
+  dow:   { label: "요일", cls: "" },
+  site:  { label: "사업장", cls: "" },
+  shift: { label: "근무조", cls: "" },
+  time:  { label: "근무시간", cls: "t" }
+};
+const FIXED_KEYS = ["done", "date", "dow", "site", "shift", "time"];
+
+/* 지금 보이는 사업장의 양식 칸까지 더한 열 목록.
+   사업장을 고르지 않았으면 첫 양식을 기준으로 삼는다 */
+function listFields() {
+  const form = view.site ? formOfSite(view.site) : (cfg.forms[0] || { fields: [] });
+  return form.fields;
+}
+function listRow(r) {
+  const s = siteOf(r.site_id) || {};
+  const out = {
+    done: isDone(r.log_date, r.site_id) ? "✓" : "",
+    date: r.log_date,
+    dow: DOW[parseYmd(r.log_date).getDay()],
+    site: s.name || "",
+    shift: r.shift || "",
+    time: r.start_at + "–" + r.end_at
+  };
+  listFields().forEach(f => { out["f_" + f.key] = fieldText(f, r.data[f.key]); });
+  return out;
+}
+function listCols() {
+  return FIXED_KEYS.map(k => ({ key: k, label: LIST_COLS[k].label, cls: LIST_COLS[k].cls, field: null }))
+    .concat(listFields().map(f => ({
+      key: "f_" + f.key, label: f.label, cls: f.type === "number" ? "num" : "wrap", field: f
+    })));
+}
+
+function listRows() {
+  const q = view.q.trim().toLowerCase();
+  return monthLogs().filter(r => {
+    if (view.listShift && r.shift !== view.listShift) return false;
+    if (view.listState === "draft" && !r.draft) return false;
+    if (view.listState === "flag" && !flagTextOf(r)) return false;
+    if (!q) return true;
+    const hay = [r.shift, (siteOf(r.site_id) || {}).name]
+      .concat(listFields().map(f => fieldText(f, r.data[f.key]))).join(" ").toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+function renderList() {
+  const head = $("#listHead"), body = $("#listBody"), foot = $("#listFoot");
+  /* 로그인하지 않으면 **일지 본문을 그리지 않는다** (우측 상세와 같은 원칙) */
+  if (currentRole() === "viewer") {
+    head.innerHTML = "<th>목록</th>";
+    body.innerHTML = '<tr><td class="empty">근무일지는 로그인한 직원만 볼 수 있습니다. ⚙ 설정 에서 로그인하세요.</td></tr>';
+    foot.innerHTML = "";
+    return;
+  }
+  const cols = listCols();
+  const rows = listRows();
+  head.innerHTML = cols.map(c => '<th class="' + esc(c.cls) + '">' + esc(c.label) + "</th>").join("");
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="' + cols.length + '" class="empty">해당하는 일지가 없습니다.</td></tr>';
+    foot.innerHTML = "";
+    return;
+  }
+  let prevDate = "";
+  body.innerHTML = rows.map(r => {
+    const v = listRow(r);
+    const flag = flagTextOf(r);
+    const same = v.date === prevDate;
+    prevDate = v.date;
+    const dowCls = dowClassOf(r.log_date);
+    return '<tr' + (r.draft ? ' class="is-draft"' : "") + ' data-open="' + esc(r.id) + '" style="cursor:pointer">' +
+      cols.map(c => {
+        let txt = v[c.key];
+        /* 같은 날짜의 날짜·요일은 둘째 줄부터 비운다 — 읽기 쉽게 하려는 것이다 */
+        if (same && (c.key === "date" || c.key === "dow" || c.key === "done")) txt = "";
+        let cls = c.cls;
+        if (c.key === "dow" && dowCls) cls += " " + dowCls;
+        if (c.field && c.field.flag) cls += " flag";
+        return '<td class="' + esc(cls.trim()) + '">' + esc(txt) + "</td>";
+      }).join("") + "</tr>";
+  }).join("");
+  foot.innerHTML = '<tr><td colspan="' + cols.length + '">' + rows.length + "건</td></tr>";
+}
+
+/* =========================================================
+   7. 설정 화면 (사업장 · 양식)
+   ========================================================= */
+function renderSettings() {
+  /* 사업장 이름과 양식은 요금 정보가 아니므로 로그인하지 않아도 볼 수 있게 둔다.
+     다만 담당자가 아니면 고칠 수 없다 (body.no-admin) */
+  $("#siteList").innerHTML = cfg.sites.map(s =>
+    '<div class="item" data-sid="' + esc(s.id) + '" data-sc="' + esc(colorOf(s)) + '">' +
+      '<div class="field"><label>사업장 이름</label><input data-k="name" value="' + esc(s.name) + '"></div>' +
+      '<div class="row2">' +
+        '<div class="field"><label>달력 구분색</label><select data-k="color">' +
+          SITE_COLORS.map(c => '<option value="' + c.id + '"' + (colorOf(s) === c.id ? " selected" : "") + ">" + c.name + "</option>").join("") +
+        "</select></div>" +
+        '<div class="field"><label>쓰는 양식</label><select data-k="formId">' +
+          cfg.forms.map(f => '<option value="' + esc(f.id) + '"' + (s.formId === f.id ? " selected" : "") + ">" + esc(f.name) + "</option>").join("") +
+        "</select></div>" +
+      "</div>" +
+      '<div class="field"><label>근무조 (쉼표로 구분)</label><input data-k="shifts" value="' + esc((s.shifts || []).join(", ")) + '" placeholder="주간, 야간"></div>' +
+      '<div class="row2">' +
+        '<div class="field"><label>기본 시작 시각</label><input data-k="startDefault" value="' + esc(s.startDefault || "") + '" placeholder="09:00"></div>' +
+        '<div class="field"><label>기본 종료 시각</label><input data-k="endDefault" value="' + esc(s.endDefault || "") + '" placeholder="18:00"></div>' +
+      "</div>" +
+      (cfg.sites.length > 1
+        ? '<div class="item-actions"><button type="button" class="btn btn-danger btn-sm" data-delsite="' + esc(s.id) + '">사업장 삭제</button></div>'
+        : '<div class="article">사업장이 하나뿐이라 삭제할 수 없습니다</div>') +
+    "</div>").join("");
+
+  const fid = cfg.forms.some(f => f.id === view.formId) ? view.formId : (cfg.forms[0] || {}).id;
+  view.formId = fid;
+  $("#formPick").innerHTML = cfg.forms.map(f =>
+    '<option value="' + esc(f.id) + '"' + (f.id === fid ? " selected" : "") + ">" + esc(f.name) + "</option>").join("");
+  const form = formOf(fid);
+  $("#formName").value = form.name || "";
+
+  $("#fieldList").innerHTML = (form.fields || []).map((f, i) =>
+    '<div class="item" data-fk="' + esc(f.key) + '">' +
+      '<div class="row21">' +
+        '<div class="field"><label>칸 이름</label><input data-k="label" value="' + esc(f.label) + '"></div>' +
+        '<div class="field"><label>종류</label><select data-k="type">' +
+          FIELD_TYPES.map(t => '<option value="' + t.id + '"' + (f.type === t.id ? " selected" : "") + ">" + t.name + "</option>").join("") +
+        "</select></div>" +
+      "</div>" +
+      (f.type === "select"
+        ? '<div class="field"><label>고를 값 (쉼표로 구분)</label><input data-k="options" value="' + esc(f.options || "") + '" placeholder="이상 없음, 조치함"></div>' : "") +
+      (f.type === "table"
+        ? '<div class="field"><label>표의 열 이름 (쉼표로 구분)</label><input data-k="cols" value="' + esc(f.cols || "") + '" placeholder="시각, 구역, 결과"></div>' : "") +
+      '<div class="field"><label>도움말 (칸 아래에 뜹니다)</label><input data-k="hint" value="' + esc(f.hint || "") + '"></div>' +
+      '<div class="row3">' +
+        '<label class="togg"><input type="checkbox" data-k="required"' + (f.required ? " checked" : "") + "><span>필수</span></label>" +
+        '<label class="togg"><input type="checkbox" data-k="flag"' + (f.flag ? " checked" : "") + "><span>특이사항</span></label>" +
+        '<label class="togg"><input type="checkbox" data-k="note"' + (f.note ? " checked" : "") + "><span>전달사항</span></label>" +
+      "</div>" +
+      '<div class="item-actions">' +
+        '<button type="button" class="btn btn-sm" data-fmove="' + i + '" data-dir="-1"' + (i === 0 ? " disabled" : "") + ">↑</button>" +
+        '<button type="button" class="btn btn-sm" data-fmove="' + i + '" data-dir="1"' + (i === form.fields.length - 1 ? " disabled" : "") + ">↓</button>" +
+        '<button type="button" class="btn btn-danger btn-sm" data-delfield="' + esc(f.key) + '" style="margin-left:auto">삭제</button>' +
+      "</div>" +
+    "</div>").join("");
+}
+
+function renderServerCard() {
+  const c = serverCfg();
+  const st = $("#srvState");
+  if (!st) return;
+  if (!c) st.textContent = "설정 안 됨";
+  else if (!SERVER.on) st.textContent = "연결 실패" + (SERVER.err ? " · " + SERVER.err : "");
+  else if (SERVER.token) st.textContent = "연결됨 · 쓰기 가능";
+  else st.textContent = "연결됨 · 조회 전용";
+  if (c) { $("#srvUrl").value = c.url; $("#srvKey").value = c.anonKey; }
+  $("#srvLoggedIn").hidden = !SERVER.token;
+  $("#srvLoggedOut").hidden = !!SERVER.token;
+  /* 로그아웃하면 이메일을 지운다. 남겨두면 다음 사람 화면에 앞사람 계정이 그대로 보인다 */
+  $("#srvWho").textContent = SERVER.token ? (SERVER.email || "직원") : "";
+  const roleEl = $("#srvRole");
+  if (roleEl) roleEl.textContent = currentRole() === "manager"
+    ? "담당자입니다 — 사업장·양식까지 고칠 수 있습니다."
+    : "작성자입니다 — 일지를 쓸 수 있습니다.";
+}
+
+/* 설정창을 연다.
+   **관리자 전용 칸은 담당자일 때만 화면에 붙인다** — hidden 으로만 감추면
+   구성원 이메일이 화면 소스에 남아 조회하는 사람이 개발자도구로 들여다볼 수 있다.
+   그래서 그 안의 단추에는 리스너를 직접 붙이지 않고 #settingsBox 에 한 번만 위임한다 */
+function openSettings() {
+  const admin = currentRole() === "manager";
+  const box = $("#setAdminOnly");
+  box.innerHTML = admin ? $("#adminTpl").innerHTML : "";
+  box.hidden = !admin;
+  if (admin) {
+    $("#setManagers").value = (cfg.managers || []).join("\n");
+    $("#setOrgNote").value = cfg.orgNote || "";
+  }
+  applyRole();
+  renderServerCard();
+  setSaveNote();
+  $("#settingsBox").hidden = false;
+}
+function setSaveNote(msg) {
+  const el = $("#setSaveNote");
+  if (el) el.textContent = msg || ($("#saveState") ? $("#saveState").textContent : "");
+}
+/* 설정 저장 — 자동 저장(2분)을 기다리지 않고 지금 올린다.
+   누르면 포커스를 한 번 떼어(blur) 적던 값까지 반영한 뒤 saveNow() 를 부른다 */
+function saveSettingsNow() {
+  if (!canEditCfg()) { toast("담당자 계정으로 로그인해야 합니다"); return; }
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  setTimeout(() => saveNow(), 0);
+}
+
+/* =========================================================
+   8. 일지 작성 · 수정
+   =========================================================
+   **작성창은 바깥을 눌렀다고 닫히지 않는다.** 글자를 끌어 고르다 손을 창 밖에서 떼면
+   그것도 바깥 클릭으로 잡혀 적던 내용이 통째로 날아간다.
+   닫기는 `닫기 ✕`·`취소`·`Esc` 로만 한다 — **바깥 클릭 닫기를 되살리지 않는다.**
+   ========================================================= */
+const TIME_MIN_STEP = 10;
+const TIME_FIELDS = ["fStart", "fEnd"];
+function fillTimeSelects() {
+  const hrs = Array.from({ length: 24 }, (_, i) => '<option value="' + i + '">' + pad(i) + "</option>").join("");
+  const mins = Array.from({ length: 60 / TIME_MIN_STEP }, (_, i) =>
+    '<option value="' + i * TIME_MIN_STEP + '">' + pad(i * TIME_MIN_STEP) + "</option>").join("");
+  TIME_FIELDS.forEach(k => { $("#" + k + "H").innerHTML = hrs; $("#" + k + "M").innerHTML = mins; });
+}
+function timeVal(k) { return pad(Number($("#" + k + "H").value)) + ":" + pad(Number($("#" + k + "M").value)); }
+function setTimeVal(k, v) {
+  const [h, m] = String(v || "00:00").split(":").map(Number);
+  $("#" + k + "H").value = String(h || 0);
+  $("#" + k + "M").value = String(Math.floor((m || 0) / TIME_MIN_STEP) * TIME_MIN_STEP);
+}
+
+let editingId = null;
+
+function fillSelects() {
+  const opts = cfg.sites.map(s => '<option value="' + esc(s.id) + '">' + esc(s.name) + "</option>").join("");
+  $("#fSite").innerHTML = opts;
+  $("#siteInput").innerHTML = '<option value="">전체 사업장</option>' + opts;
+  $("#siteInput").value = view.site;
+  $("#listSite").innerHTML = '<option value="">전체 사업장</option>' + opts;
+  $("#listSite").value = view.site;
+  const shifts = Array.from(new Set(cfg.sites.flatMap(s => s.shifts || [])));
+  $("#listShift").innerHTML = '<option value="">근무조 전체</option>' +
+    shifts.map(x => '<option value="' + esc(x) + '">' + esc(x) + "</option>").join("");
+  $("#listShift").value = view.listShift;
+}
+function fillShiftSelect(siteId, cur) {
+  const s = siteOf(siteId) || {};
+  $("#fShift").innerHTML = (s.shifts || []).map(x =>
+    '<option value="' + esc(x) + '"' + (x === cur ? " selected" : "") + ">" + esc(x) + "</option>").join("");
+}
+
+function openModal(id, seed) {
+  if (!canWriteLog()) { toast("로그인해야 일지를 쓸 수 있습니다"); return; }
+  const r = id ? logs.find(x => x.id === id) : null;
+  const base = r ? structuredClone(r)
+                 : newLog(seed && seed.date || view.selected || ymd(view.year, view.month, 1),
+                          seed && seed.siteId || view.site || (cfg.sites[0] || {}).id);
+  if (seed && seed.copyOf) {
+    const src = logs.find(x => x.id === seed.copyOf);
+    if (src) { base.data = structuredClone(src.data); base.shift = src.shift; base.start_at = src.start_at; base.end_at = src.end_at; base.site_id = src.site_id; }
+  }
+  editingId = r ? r.id : null;
+  $("#modalTitle").textContent = r ? "일지 수정" : "일지 작성";
+  $("#delRec").hidden = !r;
+  $("#fDate").value = base.log_date;
+  $("#fSite").value = base.site_id;
+  fillShiftSelect(base.site_id, base.shift);
+  setTimeVal("fStart", base.start_at);
+  setTimeVal("fEnd", base.end_at);
+  $("#fDraft").checked = !!base.draft;
+  renderFormFields(base);
+  $("#dupNotice").hidden = true;
+  $("#modal").hidden = false;
+  setTimeout(() => { const el = $("#formFields input, #formFields textarea, #formFields select"); if (el) el.focus(); }, 40);
+}
+function renderFormFields(base) {
+  const form = formOfSite($("#fSite").value || base.site_id);
+  $("#formFields").innerHTML = form.fields.map(f => fieldHtml(f, base.data[f.key])).join("");
+}
+function closeModal() { $("#modal").hidden = true; editingId = null; }
+
+function formToLog() {
+  const old = editingId ? logs.find(x => x.id === editingId) : null;
+  const r = old ? structuredClone(old) : newLog($("#fDate").value, $("#fSite").value);
+  r.log_date = $("#fDate").value;
+  r.site_id = $("#fSite").value;
+  r.shift = $("#fShift").value;
+  r.start_at = timeVal("fStart");
+  r.end_at = timeVal("fEnd");
+  r.draft = $("#fDraft").checked;
+  r.data = {};
+  formOfSite(r.site_id).fields.forEach(f => { r.data[f.key] = readField(f); });
+  if (!r.author) r.author = SERVER.email || "";
+  return r;
+}
+/* 같은 날·같은 사업장·같은 근무조 일지가 이미 있으면 알린다.
+   막지는 않는다 — 교대가 겹치거나 나눠 쓰는 경우가 있다 */
+function dupOf(r) {
+  return logs.filter(x => x.id !== r.id && x.log_date === r.log_date &&
+    x.site_id === r.site_id && x.shift === r.shift);
+}
+
+/* =========================================================
+   9. 인쇄
+   =========================================================
+   인쇄 직전에 body 에 print-detail / print-list 를 붙이고 끝나면(afterprint) 되돌린다.
+   ========================================================= */
+function openPrintBox() {
+  renderPrintDatePicker();
+  applyPrintMode();
+  $("#printBox").hidden = false;
+}
+function applyPrintMode() {
+  $$("#printBox [data-pm]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pm === view.printMode)));
+  $("#printDateBox").hidden = view.printMode !== "detail";
+}
+function renderPrintDatePicker() {
+  const dates = Array.from(new Set(monthLogs().map(r => r.log_date))).sort();
+  if (!view.printDates.length) view.printDates = dates.slice();
+  $("#printDates").innerHTML = dates.map(d =>
+    '<label class="tag" style="cursor:pointer;padding:3px 8px"><input type="checkbox" data-pd="' + d + '"' +
+    (view.printDates.includes(d) ? " checked" : "") + ' style="margin-right:4px">' + d.slice(5) + "</label>").join("")
+    || '<span class="hint">이 달에 작성된 일지가 없습니다.</span>';
+}
+function buildPrintDetail() {
+  const cols = listCols().filter(c => c.key !== "done");
+  const html = view.printDates.sort().map(d => {
+    const rows = logs.filter(r => r.log_date === d && inView(r)).sort(bySite);
+    if (!rows.length) return "";
+    const w = DOW[parseYmd(d).getDay()];
+    const hol = holidayName(d);
+    return '<section class="pd-day"><h3>' + esc(d) + " (" + w + ")" + (hol ? " · " + esc(hol) : "") + "</h3>" +
+      "<table><colgroup>" + cols.map(c => '<col style="width:' + (c.field ? "auto" : "70px") + '">').join("") + "</colgroup>" +
+      "<thead><tr>" + cols.map(c => "<th>" + esc(c.label) + "</th>").join("") + "</tr></thead><tbody>" +
+      rows.map(r => { const v = listRow(r);
+        return "<tr>" + cols.map(c => '<td class="' + esc(c.cls) + '">' + esc(v[c.key]) + "</td>").join("") + "</tr>";
+      }).join("") + "</tbody></table></section>";
+  }).join("");
+  $("#printArea").innerHTML =
+    '<h2 style="font-size:15px;margin:0 0 10px">' + esc(cfg.orgNote || "") + " 근무일지 — " +
+    view.year + "년 " + view.month + "월" +
+    (view.site ? " · " + esc((siteOf(view.site) || {}).name || "") : "") + "</h2>" + (html || "<p>인쇄할 일지가 없습니다.</p>");
+}
+function doPrint() {
+  $("#printBox").hidden = true;
+  if (view.printMode === "detail") { buildPrintDetail(); document.body.classList.add("print-detail"); }
+  else document.body.classList.add("print-list");
+  const off = () => {
+    document.body.classList.remove("print-detail", "print-list");
+    window.removeEventListener("afterprint", off);
+  };
+  window.addEventListener("afterprint", off);
+  setTimeout(() => window.print(), 60);
+}
+
+/* =========================================================
+   9-C. 내보내기 (엑셀 · CSV)
+   =========================================================
+   **엑셀은 진짜 .xlsx(OOXML) 다.** HTML 표를 .xls 이름으로 넘기면 엑셀이
+   "파일 형식과 확장명이 일치하지 않습니다" 경고를 띄운다 —
+   **HTML 표로 되돌리지 않는다.** ZIP·XML 을 직접 만든다 (라이브러리 없음).
+   ========================================================= */
+const XL_FSZ = 12;   // 글자 크기(pt). 열 너비는 엑셀 기본 글꼴(11pt) 칸 수로 세므로 FSZ/11 만큼 넓혀야 잘리지 않는다
+
+function exportTable(fmt) {
+  const cols = listCols().filter(c => c.key !== "done");   // **완료 칸은 내보내지 않는다** (화면·종이에서만 쓰는 표시다)
+  const rows = listRows();
+  if (!rows.length) { toast("내보낼 일지가 없습니다"); return; }
+  const data = rows.map(listRow);
+  const label = view.year + "-" + pad(view.month);
+  const name = "근무일지_" + label + (view.site ? "_" + (siteOf(view.site) || {}).name : "");
+
+  if (fmt === "csv") {
+    /* CSV 는 글자만 담는 형식이라 색도 병합도 담을 수 없다.
+       같은 날짜의 날짜·요일을 비우는 것까지만 한다. 서식이 필요하면 엑셀 쪽을 쓴다 */
+    const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+    let prev = "";
+    const lines = [cols.map(c => q(c.label)).join(",")];
+    data.forEach(v => {
+      const same = v.date === prev; prev = v.date;
+      lines.push(cols.map(c => q(same && (c.key === "date" || c.key === "dow") ? "" : v[c.key])).join(","));
+    });
+    download(name + ".csv", "﻿" + lines.join("\r\n"), "text/csv");
+    return;
+  }
+
+  const wb = xwNew("근무일지");
+  /* wb.page 를 두지 않으면 기본값(세로)이 딸려온다. 가로 · 한 폭에 맞춤으로 낸다 */
+  wb.page = { orient: "landscape", fitW: 1 };
+  const B = { t: "thin", b: "thin", l: "thin", r: "thin" };
+  const stTitle = xwStyle(wb, { sz: XL_FSZ + 4, b: 1, h: "center", v: "center" });
+  const stHead  = xwStyle(wb, { sz: XL_FSZ, b: 1, h: "center", v: "center", w: 1, bd: B, fl: { p: "solid", fg: "F1F3F4" } });
+  const cell = (o) => xwStyle(wb, Object.assign({ sz: XL_FSZ, v: "center", w: 1, bd: B }, o || {}));
+
+  xwPut(wb, 0, 0, { v: name, s: stTitle });
+  wb.merges.push([0, 0, 1, cols.length]);
+  wb.rowH[0] = 26;
+
+  cols.forEach((c, i) => xwPut(wb, 2, i, { v: c.label, s: stHead }));
+  wb.rowH[2] = 22;
+
+  let prev = "", prevStart = 3;
+  data.forEach((v, ri) => {
+    const r = rows[ri], row = 3 + ri;
+    const same = v.date === prev;
+    /* 토·일·공휴일 줄은 연한 금색으로 칠한다 (엑셀만 — 화면·인쇄는 테두리와 글자색으로 구분한다).
+       임시저장 줄은 연한 파랑이고, 임시저장이 요일 색을 이긴다 */
+    const holRow = dowClassOf(r.log_date) === "dow-sun" || dowClassOf(r.log_date) === "dow-sat";
+    const fl = r.draft ? { p: "solid", fg: "DEEBF7" } : (holRow ? { p: "solid", fg: "FFF2CC" } : null);
+    cols.forEach((c, i) => {
+      if (same && (c.key === "date" || c.key === "dow")) {
+        /* 병합된 날짜 칸의 이어지는 줄에도 **서식은 넣는다** — 비워 두면
+           날짜 묶음의 굵은 줄이 그 칸만 빠져 보인다 */
+        xwPut(wb, row, i, { s: cell({ fl: fl, h: "center" }) });
+        return;
+      }
+      let col = "FF0000";
+      const dc = dowClassOf(r.log_date);
+      const isDow = c.key === "dow";
+      const o = { fl: fl };
+      if (isDow && dc === "dow-sat") o.c = "0070C0";
+      else if (isDow && dc === "dow-sun") o.c = "FF0000";
+      if (c.field && c.field.flag) { o.c = "FF0000"; o.b = 1; }
+      if (c.cls === "num") { o.h = "right"; }
+      else if (c.key === "date" || c.key === "time" || isDow || c.key === "shift") o.h = "center";
+      const val = v[c.key];
+      /* 인원 같은 숫자 칸은 **숫자로 넣는다** — 글자로 넣으면 엑셀이
+         「숫자가 텍스트로 저장됨」 초록 세모를 칸마다 붙인다 */
+      if (c.cls === "num" && val !== "" && !isNaN(Number(val))) xwPut(wb, row, i, { n: Number(val), s: cell(o) });
+      else xwPut(wb, row, i, { v: val, s: cell(o) });
+    });
+    if (!same && ri > 0) markDateBreak(wb, prevStart, row - 1, cols.length, B);
+    if (!same) { prev = v.date; prevStart = row; }
+  });
+  /* 날짜 묶음의 마지막 줄 아래에 굵은 줄을 긋는다 — 날짜끼리 한눈에 갈라 보이게 */
+  markDateBreak(wb, prevStart, 2 + data.length, cols.length, B);
+  mergeDateCells(wb, data, cols);
+
+  /* 열 너비를 그 열에서 가장 긴 값에 맞춘다 (한글은 두 칸으로 센다) */
+  cols.forEach((c, i) => {
+    let w = textWidth(c.label);
+    data.forEach(v => String(v[c.key] || "").split("\n").forEach(line => { w = Math.max(w, textWidth(line)); }));
+    wb.cols[i] = Math.min(48, Math.max(7, (w + 3) * (XL_FSZ / 11)));
+  });
+
+  downloadBytes(name + ".xlsx", xwXlsx(wb), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+}
+function markDateBreak(wb, from, to, ncols, B) {
+  for (let i = 0; i < ncols; i++) {
+    const cellObj = (wb.rows[to] || [])[i];
+    if (!cellObj) continue;
+    /* 아래 테두리만 굵게 바꾼 서식을 새로 등록해 갈아 끼운다 */
+    const old = wb.xf[cellObj.s] || {};
+    cellObj.s = xwStyle(wb, Object.assign({}, xfBack(wb, cellObj.s), { bd: { t: B.t, b: "medium", l: B.l, r: B.r } }));
+  }
+}
+/* 등록된 서식 번호에서 원래 설정을 되짚는다 (테두리만 바꿔 다시 등록하기 위해서다) */
+function xfBack(wb, id) {
+  for (const k in wb.xfKey) if (wb.xfKey[k] === id) return JSON.parse(k);
+  return {};
+}
+/* 같은 날짜의 날짜·요일 칸을 세로로 합친다 */
+function mergeDateCells(wb, data, cols) {
+  const di = cols.findIndex(c => c.key === "date");
+  const wi = cols.findIndex(c => c.key === "dow");
+  let start = 0;
+  for (let i = 1; i <= data.length; i++) {
+    if (i === data.length || data[i].date !== data[start].date) {
+      const n = i - start;
+      if (n > 1) {
+        if (di >= 0) wb.merges.push([3 + start, di, n, 1]);
+        if (wi >= 0) wb.merges.push([3 + start, wi, n, 1]);
+      }
+      start = i;
+    }
+  }
+}
+
+function openCopyBox(title, text) {
+  $("#copyTitle").textContent = title;
+  $("#copyText").value = text;
+  $("#copyBox").hidden = false;
+}
+/* 엑셀(.xlsx) 처럼 글자가 아닌 파일을 저장한다 */
+function downloadBytes(name, bytes, mime) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function download(name, text, mime) {
+  const blob = new Blob([text], { type: mime + ";charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+/* =========================================================
+   9-C-2. 엑셀(.xlsx) 만들기 — ZIP + OOXML
+   =========================================================
+   **시설 예약 대장(index.html 3865~4152줄)에서 그대로 가져온 것이다.**
+   라이브러리 없이 ZIP(압축 없이 담기만)과 XML 을 직접 만든다.
+   여기를 고칠 일은 거의 없다 — 고쳐야 하면 양쪽을 같이 고친다.
+   ========================================================= */
+/* ── ZIP (압축 없이 담기만 한다) ────────────────────────── */
+const CRC32T = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = CRC32T[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+/* files: [{ name, data:Uint8Array }] → ZIP 한 덩어리 */
+function zipStore(files) {
+  const enc = new TextEncoder();
+  const body = [], dir = [];
+  let off = 0;
+  files.forEach(f => {
+    const name = enc.encode(f.name), data = f.data, crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true);
+    lh.setUint16(4, 20, true);          // 필요한 판
+    lh.setUint16(6, 0x0800, true);      // 이름이 UTF-8
+    lh.setUint16(8, 0, true);           // 0 = 저장(압축 안 함)
+    lh.setUint16(10, 0, true); lh.setUint16(12, 0x2821, true);   // 시각·날짜는 고정값
+    lh.setUint32(14, crc, true);
+    lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true);
+    lh.setUint16(26, name.length, true);
+    body.push(new Uint8Array(lh.buffer), name, data);
+
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true);
+    ch.setUint16(4, 20, true); ch.setUint16(6, 20, true);
+    ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, 0, true); ch.setUint16(14, 0x2821, true);
+    ch.setUint32(16, crc, true);
+    ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true);
+    ch.setUint16(28, name.length, true);
+    ch.setUint32(42, off, true);
+    dir.push(new Uint8Array(ch.buffer), name);
+    off += 30 + name.length + data.length;
+  });
+  const dirSize = dir.reduce((a, x) => a + x.length, 0);
+  const eo = new DataView(new ArrayBuffer(22));
+  eo.setUint32(0, 0x06054b50, true);
+  eo.setUint16(8, files.length, true); eo.setUint16(10, files.length, true);
+  eo.setUint32(12, dirSize, true); eo.setUint32(16, off, true);
+
+  const all = body.concat(dir, [new Uint8Array(eo.buffer)]);
+  const out = new Uint8Array(all.reduce((a, x) => a + x.length, 0));
+  let p = 0;
+  all.forEach(x => { out.set(x, p); p += x.length; });
+  return out;
+}
+
+/* ── 엑셀 파일 만들기 ───────────────────────────────────── */
+function xq(s) {   // XML 에 넣을 글자
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/\x00-\x08|\x0b|\x0c|\x0e-\x1f/g, "");
+}
+function colName(c) {
+  let s = "";
+  for (let n = c + 1; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + (n - 1) % 26) + s;
+  return s;
+}
+function cellRef(r, c) { return colName(c) + (r + 1); }
+function refToRC(ref) {
+  const m = /^([A-Z]+)(\d+)$/.exec(ref);
+  let c = 0;
+  for (const ch of m[1]) c = c * 26 + (ch.charCodeAt(0) - 64);
+  return [Number(m[2]) - 1, c - 1];
+}
+
+/* 새 시트 하나. 칸은 rows[r][c] 에 담고 마지막에 XML 로 편다 */
+function xwNew(name) {
+  const wb = { name: name, rows: [], cols: [], rowH: [], merges: [],
+               nf: [], font: [], bd: [], fl: [], xf: [], xfKey: {} };
+  // 0번은 아무것도 입히지 않은 기본 서식이다 (엑셀의 「표준」).
+  // 여기를 비워 두면 맨 처음 등록한 서식의 글꼴이 빈 칸에까지 딸려간다
+  xwStyle(wb, {});
+  return wb;
+}
+/* 서식 하나를 등록하고 번호를 돌려준다. 같은 서식은 한 번만 담긴다.
+   st = { sz, b, c(글자색), fn(글꼴), h, v, w(줄바꿈), s(칸에 맞춤), nf(표시형식), bd(테두리) } */
+function xwStyle(wb, st) {
+  const key = JSON.stringify(st);
+  if (wb.xfKey[key] != null) return wb.xfKey[key];
+  const put = (arr, v) => {
+    const k = JSON.stringify(v);
+    let i = arr.findIndex(x => JSON.stringify(x) === k);
+    if (i < 0) { i = arr.length; arr.push(v); }
+    return i;
+  };
+  const fontId = put(wb.font, { fn: st.fn || "돋움", sz: st.sz || 11, b: !!st.b, c: st.c || null });
+  const bdId   = st.bd ? put(wb.bd, st.bd) + 1 : 0;
+  const nfId   = st.nf ? put(wb.nf, st.nf) + 176 : 0;
+  const flId   = st.fl ? put(wb.fl, st.fl) + 2 : 0;   // 0·1 은 엑셀이 쓰는 자리다
+  const id = wb.xf.length;
+  wb.xf.push({ fontId: fontId, bdId: bdId, nfId: nfId, flId: flId,
+               h: st.h || null, v: st.v || null, w: !!st.w, s: !!st.s });
+  wb.xfKey[key] = id;
+  return id;
+}
+function xwPut(wb, r, c, o) {
+  const row = wb.rows[r] || (wb.rows[r] = []);
+  row[c] = Object.assign(row[c] || {}, o);
+}
+function xwAt(wb, ref, o) { const rc = refToRC(ref); xwPut(wb, rc[0], rc[1], o); }
+
+function xwXlsx(wb) {
+  const enc = new TextEncoder();
+  const H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  const pg = Object.assign({ orient: "portrait", scale: 0, fitW: 0, centerH: 0, centerV: 0,
+    mx: 0.25, mt: 0.5, mb: 0.4 }, wb.page || {});
+  const NSm = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+  const NSr = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  const NSp = "http://schemas.openxmlformats.org/package/2006/relationships";
+
+  const types = H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+    '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+    (wb.image ? '<Default Extension="' + (wb.image.ext || "png") + '" ContentType="' +
+        (wb.image.mime || "image/png") + '"/>' +
+      '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>' : "") +
+    "</Types>";
+  const rels = H + '<Relationships xmlns="' + NSp + '">' +
+    '<Relationship Id="rId1" Type="' + NSr + '/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+  const book = H + '<workbook xmlns="' + NSm + '" xmlns:r="' + NSr + '">' +
+    '<sheets><sheet name="' + xq(wb.name) + '" sheetId="1" r:id="rId1"/></sheets>' +
+    (wb.printArea ? "<definedNames><definedName name=\"_xlnm.Print_Area\" localSheetId=\"0\">" +
+      xq(wb.name) + "!" + wb.printArea + "</definedName></definedNames>" : "") +
+    // 수식만 담고 값은 담지 않으므로, 열 때 한 번 다시 계산하게 한다
+    '<calcPr calcId="0" fullCalcOnLoad="1"/></workbook>';
+  const brels = H + '<Relationships xmlns="' + NSp + '">' +
+    '<Relationship Id="rId1" Type="' + NSr + '/worksheet" Target="worksheets/sheet1.xml"/>' +
+    '<Relationship Id="rId2" Type="' + NSr + '/styles" Target="styles.xml"/></Relationships>';
+
+  // ── 서식
+  const argb = c => { const v = String(c).replace("#", ""); return v.length === 6 ? "FF" + v : v; };
+  const side = (v, name) => {
+    if (!v) return "<" + name + "/>";
+    const p = String(v).split("|");
+    return "<" + name + ' style="' + p[0] + '">' +
+      (p[1] ? '<color rgb="' + argb(p[1]) + '"/>' : "") + "</" + name + ">";
+  };
+  const styles = H + '<styleSheet xmlns="' + NSm + '">' +
+    (wb.nf.length ? '<numFmts count="' + wb.nf.length + '">' +
+      wb.nf.map((f, i) => '<numFmt numFmtId="' + (176 + i) + '" formatCode="' + xq(f) + '"/>').join("") +
+      "</numFmts>" : "") +
+    '<fonts count="' + wb.font.length + '">' + wb.font.map(f =>
+      "<font>" + (f.b ? "<b/>" : "") + '<sz val="' + f.sz + '"/>' +
+      (f.c ? '<color rgb="' + argb(f.c) + '"/>' : "") +
+      '<name val="' + xq(f.fn) + '"/><family val="3"/><charset val="129"/></font>').join("") + "</fonts>" +
+    '<fills count="' + (wb.fl.length + 2) + '"><fill><patternFill patternType="none"/></fill>' +
+      '<fill><patternFill patternType="gray125"/></fill>' +
+      wb.fl.map(f => '<fill><patternFill patternType="' + f.p + '">' +
+        (f.fg ? '<fgColor rgb="' + argb(f.fg) + '"/>' : "") +
+        // 바탕색이 없으면 그대로 둔다. 무늬 채우기에 indexed="64" 를 넣으면 새까맣게 칠해진다
+        (f.bg ? '<bgColor rgb="' + argb(f.bg) + '"/>' : (f.p === "solid" ? '<bgColor indexed="64"/>' : "")) +
+        "</patternFill></fill>").join("") + "</fills>" +
+    '<borders count="' + (wb.bd.length + 1) + '">' +
+      "<border><left/><right/><top/><bottom/><diagonal/></border>" +
+      wb.bd.map(b => "<border>" + side(b.l, "left") + side(b.r, "right") +
+        side(b.t, "top") + side(b.b, "bottom") + "<diagonal/></border>").join("") + "</borders>" +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="' + wb.xf.length + '">' + wb.xf.map(x => {
+      const al = (x.h || x.v || x.w || x.s);
+      return '<xf numFmtId="' + x.nfId + '" fontId="' + x.fontId + '" fillId="' + x.flId + '" borderId="' + x.bdId + '" xfId="0"' +
+        (x.nfId ? ' applyNumberFormat="1"' : "") + ' applyFont="1"' +
+        (x.flId ? ' applyFill="1"' : "") +
+        (x.bdId ? ' applyBorder="1"' : "") + (al ? ' applyAlignment="1"' : "") + ">" +
+        (al ? "<alignment" + (x.h ? ' horizontal="' + x.h + '"' : "") +
+          (x.v ? ' vertical="' + x.v + '"' : "") + (x.w ? ' wrapText="1"' : "") +
+          (x.s ? ' shrinkToFit="1"' : "") + "/>" : "") + "</xf>";
+    }).join("") + "</cellXfs>" +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+    "<dxfs count=\"0\"/><tableStyles count=\"0\"/></styleSheet>";
+
+  // ── 시트
+  const nRow = wb.rows.length, nCol = wb.cols.length;
+  let sd = "";
+  for (let r = 0; r < nRow; r++) {
+    const row = wb.rows[r];
+    if (!row) continue;
+    const h = wb.rowH[r];
+    let cs = "";
+    for (let c = 0; c < nCol; c++) {
+      const cell = row[c];
+      if (!cell) continue;
+      const s = cell.s ? ' s="' + cell.s + '"' : "";
+      let inner = "", tp = "";
+      if (cell.f != null) inner = "<f>" + xq(cell.f) + "</f>";
+      else if (cell.n != null) inner = "<v>" + cell.n + "</v>";
+      else if (cell.rich) {
+        /* 한 칸 안에서 앞부분만 색·굵기를 달리한다 (목록의 시작 시각).
+           도막마다 글꼴을 다시 적어야 하므로 rPr 를 통째로 넣는다 */
+        tp = ' t="inlineStr"';
+        inner = "<is>" + cell.rich.map(r =>
+          "<r><rPr>" + (r.b ? "<b/>" : "") + '<sz val="' + (r.sz || 10) + '"/>' +
+          (r.c ? '<color rgb="' + argb(r.c) + '"/>' : "") +
+          '<rFont val="' + xq(r.fn || "맑은 고딕") + '"/><family val="3"/><charset val="129"/></rPr>' +
+          '<t xml:space="preserve">' + xq(r.t) + "</t></r>").join("") + "</is>";
+      }
+      else if (cell.t != null && cell.t !== "") {
+        tp = ' t="inlineStr"';
+        inner = '<is><t xml:space="preserve">' + xq(cell.t) + "</t></is>";
+      }
+      // 빈 칸은 닫는 태그 없이 적는다 (원본 파일과 같은 모양)
+      cs += '<c r="' + cellRef(r, c) + '"' + s + tp + (inner ? ">" + inner + "</c>" : "/>");
+    }
+    sd += '<row r="' + (r + 1) + '"' + (h ? ' ht="' + h + '" customHeight="1"' : "") + ">" + cs + "</row>";
+  }
+  const sheet = H + '<worksheet xmlns="' + NSm + '" xmlns:r="' + NSr + '">' +
+    (pg.fitW ? "<sheetPr><pageSetUpPr fitToPage=\"1\"/></sheetPr>" : "") +
+    '<dimension ref="A1:' + cellRef(nRow - 1, nCol - 1) + '"/>' +
+    // 쪽 나눔 미리보기로 열면 인쇄 영역 바깥이 회색으로 눌려 서식만 또렷하게 보인다 (원본과 같다)
+    '<sheetViews><sheetView view="pageBreakPreview" zoomScaleNormal="100" ' +
+      'zoomScaleSheetLayoutView="100" workbookViewId="0"/></sheetViews>' +
+    '<sheetFormatPr defaultRowHeight="13.5"/>' +
+    "<cols>" + wb.cols.map((w, i) => w == null ? "" :
+      '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join("") + "</cols>" +
+    "<sheetData>" + sd + "</sheetData>" +
+    (wb.merges.length ? '<mergeCells count="' + wb.merges.length + '">' +
+      wb.merges.map(m => '<mergeCell ref="' + cellRef(m[0], m[1]) + ":" +
+        cellRef(m[0] + m[2] - 1, m[1] + m[3] - 1) + '"/>').join("") + "</mergeCells>" : "") +
+    // 인쇄 설정. 정산서는 서식 그대로, 목록은 가로 용지에 폭을 맞춘다
+    (pg.centerH || pg.centerV ? "<printOptions" + (pg.centerH ? ' horizontalCentered="1"' : "") +
+      (pg.centerV ? ' verticalCentered="1"' : "") + "/>" : "") +
+    '<pageMargins left="' + pg.mx + '" right="' + pg.mx + '" top="' + pg.mt + '" ' +
+      'bottom="' + pg.mb + '" header="0.31496062992126" footer="0.31496062992126"/>' +
+    '<pageSetup paperSize="9"' + (pg.scale ? ' scale="' + pg.scale + '"' : "") +
+      (pg.fitW ? ' fitToWidth="1" fitToHeight="0"' : "") +
+      ' orientation="' + pg.orient + '"/>' +
+    (wb.header ? '<headerFooter alignWithMargins="0"><oddHeader>' + xq(wb.header) + "</oddHeader></headerFooter>" : "") +
+    (wb.breaks && wb.breaks.length ? '<rowBreaks count="' + wb.breaks.length + '" manualBreakCount="' + wb.breaks.length + '">' +
+      wb.breaks.map(b => '<brk id="' + b + '" man="1"/>').join("") + "</rowBreaks>" : "") +
+    (wb.image ? '<drawing r:id="rId1"/>' : "") +
+    "</worksheet>";
+
+  /* 그림 한 장 (통제 도장). **원본과 같은 twoCellAnchor 로 낸다** —
+     칸 두 개를 집어 크기를 EMU 로 못 박으므로, 줄 높이가 달라져도 원본과 같은 자리에 앉는다.
+     값은 원본 drawing1.xml 에서 그대로 옮긴 것이다 (SETTLE_STAMP_AT) */
+  const im = wb.image;
+  const drawing = im ? H +
+    '<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" ' +
+      'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">' +
+    "<xdr:twoCellAnchor>" +
+      "<xdr:from><xdr:col>" + im.col + "</xdr:col><xdr:colOff>" + (im.colOff || 0) + "</xdr:colOff>" +
+        "<xdr:row>" + im.row + "</xdr:row><xdr:rowOff>" + (im.rowOff || 0) + "</xdr:rowOff></xdr:from>" +
+      "<xdr:to><xdr:col>" + im.toCol + "</xdr:col><xdr:colOff>" + (im.toColOff || 0) + "</xdr:colOff>" +
+        "<xdr:row>" + im.toRow + "</xdr:row><xdr:rowOff>" + (im.toRowOff || 0) + "</xdr:rowOff></xdr:to>" +
+      "<xdr:pic><xdr:nvPicPr>" +
+        '<xdr:cNvPr id="1" name="' + xq(im.name || "그림") + '"/>' +
+        '<xdr:cNvPicPr><a:picLocks noChangeAspect="1" noChangeArrowheads="1"/></xdr:cNvPicPr></xdr:nvPicPr>' +
+        '<xdr:blipFill><a:blip xmlns:r="' + NSr + '" r:embed="rId1"/>' +
+        "<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>" +
+        '<xdr:spPr bwMode="auto"><a:xfrm><a:off x="0" y="0"/>' +
+        '<a:ext cx="' + im.cx + '" cy="' + im.cy + '"/></a:xfrm>' +
+        '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></xdr:spPr></xdr:pic>' +
+      "<xdr:clientData/></xdr:twoCellAnchor></xdr:wsDr>" : "";
+  const sheetRels = im ? H + '<Relationships xmlns="' + NSp + '">' +
+    '<Relationship Id="rId1" Type="' + NSr + '/drawing" Target="../drawings/drawing1.xml"/></Relationships>' : "";
+  const drawRels = im ? H + '<Relationships xmlns="' + NSp + '">' +
+    '<Relationship Id="rId1" Type="' + NSr + '/image" Target="../media/image1.' +
+      (im.ext || "png") + '"/></Relationships>' : "";
+
+  const parts = [
+    { name: "[Content_Types].xml", data: enc.encode(types) },
+    { name: "_rels/.rels",         data: enc.encode(rels) },
+    { name: "xl/workbook.xml",     data: enc.encode(book) },
+    { name: "xl/_rels/workbook.xml.rels", data: enc.encode(brels) },
+    { name: "xl/styles.xml",       data: enc.encode(styles) },
+    { name: "xl/worksheets/sheet1.xml", data: enc.encode(sheet) }
+  ];
+  if (im) parts.push(
+    { name: "xl/worksheets/_rels/sheet1.xml.rels", data: enc.encode(sheetRels) },
+    { name: "xl/drawings/drawing1.xml",            data: enc.encode(drawing) },
+    { name: "xl/drawings/_rels/drawing1.xml.rels", data: enc.encode(drawRels) },
+    { name: "xl/media/image1." + (im.ext || "png"),  data: im.data });
+  return zipStore(parts);
+}
+
+/* =========================================================
+   10. 렌더 총괄
+   ========================================================= */
+function renderAll() {
+  $("#yearInput").value = view.year;
+  $("#monthInput").value = view.month;
+  applyRole();
+  applySetPane();
+  renderCalendar();
+  renderRail();
+  renderList();
+  if (view.pane === "settings") renderSettings();
+}
+function applySetPane() {
+  const cur = view.setPane || "site";
+  $$("#setSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sp === cur)));
+  $$("#pane-settings .settings > .card").forEach(c => { c.hidden = c.dataset.sp !== cur; });
+}
+/* 로그인한 계정의 역할을 화면에 반영한다.
+   **로그인 칸은 잠그지 않는다** — 잠그면 조회 전용에서 영영 빠져나오지 못한다 */
+function applyRole() {
+  const role = currentRole();
+  const admin = role === "manager";
+  document.body.classList.toggle("no-admin", !admin);
+  document.body.classList.toggle("viewer", role === "viewer");
+  if (role === "viewer" && view.pane === "settings") setPane("calendar");
+
+  const badge = $("#roleBadge");
+  if (badge) { badge.hidden = role !== "writer"; badge.textContent = "작성자"; }
+  const roNote = $("#settingsRO");
+  if (roNote) roNote.hidden = admin;
+  const lock = $("#setLockNote");
+  if (lock) lock.hidden = admin;
+  /* 주소·키는 담당자만 손댄다. 로그인 칸은 누구에게나 열어 둔다 */
+  const cfgRow = $("#srvCfgRow");
+  if (cfgRow) cfgRow.hidden = !admin;
+}
+
+/* 되돌릴 수 없는 일 앞에서 한 번 더 막는다.
+   서버에 로그인해 쓰는 자리에서는 **비밀번호를 다시 받아 서버에 물어본다**.
+   서버를 안 쓰는 자리에서는 정해진 낱말을 그대로 치게 한다.
+   비밀번호를 화면에 저장하거나 자료에 담지 않는다 */
+function askConfirm(opt) {
+  const byPw = RUNTIME.server && !!SERVER.token && !!SERVER.email;
+  return new Promise(resolve => {
+    const box = $("#pwBox"), form = $("#pwForm"), input = $("#pwInput");
+    $("#pwTitle").textContent = opt.title;
+    $("#pwWhat").textContent = opt.what;
+    $("#pwGo").textContent = opt.go;
+    $("#pwMsg").textContent = "";
+    $("#pwLabel").textContent = byPw ? "비밀번호 다시 입력" : "확인 낱말 — “" + opt.word + "” 을 그대로 치세요";
+    $("#pwHint").textContent = byPw
+      ? "지금 로그인한 계정(" + (SERVER.email || "") + ")의 비밀번호입니다."
+      : "서버에 로그인해 쓰는 자리에서는 비밀번호를 다시 묻습니다.";
+    input.type = byPw ? "password" : "text";
+    input.value = "";
+    box.hidden = false;
+    setTimeout(() => input.focus(), 30);
+
+    const done = v => {
+      form.removeEventListener("submit", onGo);
+      $("#pwCancel").removeEventListener("click", onNo);
+      $("#pwClose").removeEventListener("click", onNo);
+      document.removeEventListener("keydown", onKey);
+      box.hidden = true; input.value = "";
+      resolve(v);
+    };
+    const onNo = () => done(false);
+    const onKey = e => { if (e.key === "Escape") onNo(); };
+    async function onGo(e) {
+      e.preventDefault();
+      const v = input.value;
+      if (!v) { $("#pwMsg").textContent = byPw ? "비밀번호를 입력하세요" : "확인 낱말을 치세요"; return; }
+      if (!byPw) {
+        if (v.trim() !== opt.word) { $("#pwMsg").textContent = "낱말이 다릅니다"; input.select(); return; }
+        return done(true);
+      }
+      $("#pwGo").disabled = true; $("#pwMsg").textContent = "확인하는 중…";
+      const ok = await verifyPassword(v);
+      $("#pwGo").disabled = false;
+      if (!ok) { $("#pwMsg").textContent = "비밀번호가 맞지 않습니다"; input.select(); return; }
+      done(true);
+    }
+    form.addEventListener("submit", onGo);
+    $("#pwCancel").addEventListener("click", onNo);
+    $("#pwClose").addEventListener("click", onNo);
+    document.addEventListener("keydown", onKey);
+  });
+}
+
+/* =========================================================
+   11. 이벤트
+   ========================================================= */
+function setPane(p) {
+  if (currentRole() === "viewer" && p === "settings") p = "calendar";
+  view.pane = p;
+  $$(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.pane === p)));
+  $$(".pane").forEach(s => s.classList.toggle("active", s.id === "pane-" + p));
+  if (p === "settings") renderSettings();
+  if (p === "list") renderList();
+}
+async function shiftMonth(d) {
+  let m = view.month + d, y = view.year;
+  if (m < 1) { m = 12; y--; } else if (m > 12) { m = 1; y++; }
+  view.year = y; view.month = m; view.selected = null; view.printDates = [];
+  await reloadMonth();
+}
+/* 달을 옮기면 그 달 일지를 서버에서 새로 받아온다.
+   **전체를 한꺼번에 들고 있지 않는다** — 몇 해 치가 쌓이면 전송량이 샌다 */
+async function reloadMonth() {
+  if (RUNTIME.server && SERVER.on && SERVER.token) {
+    try { logs = await logsLoad(view.year, view.month); mirrorLocal(); }
+    catch (e) { toast("일지를 불러오지 못했습니다: " + (e.message || "")); }
+  }
+  renderAll();
+}
+
+document.addEventListener("DOMContentLoaded", boot);
+
+async function boot() {
+  loadSession();
+  readLocal();
+
+  if (serverCfg()) {
+    RUNTIME.server = true;
+    RUNTIME.writable = !!SERVER.token;
+    try {
+      const c = await cfgLoad();
+      if (c) cfg = c;
+      /* 일지는 **로그인한 사람만** 읽을 수 있다 (근무자 이름이 들어 있어 RLS 로 막는다).
+         로그인하지 않았으면 아예 부르지 않는다 — 부르면 401 이 와서
+         "서버 연결 안 됨" 으로 보이지만 실제로는 정상이다.
+         사업장·양식(worklog_config)은 누구나 읽어도 되므로 위에서 먼저 받는다 */
+      logs = SERVER.token ? await logsLoad(view.year, view.month) : [];
+      SERVER.on = true; SERVER.err = "";
+      RUNTIME.writable = !!SERVER.token;   // 불러오는 중에 토큰이 버려졌을 수 있다
+      mirrorLocal();
+    } catch (e) {
+      SERVER.on = false;
+      SERVER.err = (e && e.message) || "";
+      /* 서버를 못 읽어도 이 브라우저에 있던 사본으로 화면은 보여준다 */
+    }
+  }
+  init();
+  renderStorageNote();
+  if (RUNTIME.server) {
+    if (!SERVER.on) setSaveState("서버 연결 안 됨" + (SERVER.err ? " · " + SERVER.err : ""));
+    else if (!RUNTIME.writable) applyReadOnly();
+    else setSaveState("서버에 연결됨");
+    startPolling();
+    offerRecovery();
+  } else {
+    setSaveState("이 브라우저에 저장");
+  }
+}
+
+function init() {
+  $("#appVer").textContent = APP_VERSION;
+  $("#monthInput").innerHTML = Array.from({ length: 12 }, (_, i) =>
+    '<option value="' + (i + 1) + '">' + (i + 1) + "월</option>").join("");
+  if (cfg.sites.length === 1) view.site = cfg.sites[0].id;
+  fillTimeSelects();
+  fillSelects();
+  renderAll();
+
+  /* ── 윗줄 ── */
+  $$(".tabs button").forEach(b => b.addEventListener("click", () => setPane(b.dataset.pane)));
+  $("#prevMonth").addEventListener("click", () => shiftMonth(-1));
+  $("#nextMonth").addEventListener("click", () => shiftMonth(1));
+  $("#todayBtn").addEventListener("click", async () => {
+    const t = new Date();
+    view.year = t.getFullYear(); view.month = t.getMonth() + 1;
+    view.selected = ymd(t.getFullYear(), t.getMonth() + 1, t.getDate());
+    await reloadMonth();
+  });
+  $("#yearInput").addEventListener("change", async e => { view.year = Number(e.target.value) || view.year; await reloadMonth(); });
+  $("#monthInput").addEventListener("change", async e => { view.month = Number(e.target.value); await reloadMonth(); });
+  $("#siteInput").addEventListener("change", e => { view.site = e.target.value; view.printDates = []; fillSelects(); renderAll(); });
+  $("#newBtn").addEventListener("click", () => openModal(null));
+  /* 제목을 누르면 첫 화면으로 새로고침한다 — 서버 자료를 다시 받는다 */
+  $("#homeBtn").addEventListener("click", () => location.reload());
+  $("#themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur === "dark" ? "light" : cur === "light" ? "" : "dark";
+    if (next) document.documentElement.setAttribute("data-theme", next);
+    else document.documentElement.removeAttribute("data-theme");
+  });
+  /* **이벤트 리스너에 saveNow 를 직접 넘기지 않는다** — 이벤트 객체가 silent 자리에 들어간다 */
+  $("#saveNow").addEventListener("click", () => saveNow());
+  $("#settingsBtn").addEventListener("click", openSettings);
+
+  /* 그 날 확인 표시 — 달력 칸 우측 아래에 ✓ 가 붙는다 */
+  $("#railDone").addEventListener("click", () => {
+    if (!view.selected) return;
+    if (!canWriteLog()) { toast("로그인해야 고칠 수 있습니다"); return; }
+    const siteId = view.site || (cfg.sites.length === 1 ? cfg.sites[0].id : "");
+    if (!siteId) { toast("먼저 사업장을 고르세요"); return; }
+    const on = toggleDone(view.selected, siteId);
+    save(); saveNow(true);
+    renderAll();
+    toast(view.selected + (on ? " 을 확인 완료로 표시했습니다" : " 의 확인 표시를 뗐습니다"));
+  });
+
+  /* ── 달력 ── */
+  $("#calGrid").addEventListener("click", e => {
+    const chip = e.target.closest("[data-open]");
+    if (chip) { e.stopPropagation(); openModal(chip.dataset.open); return; }
+    const cell = e.target.closest("[data-date]");
+    if (cell) { view.selected = cell.dataset.date; renderCalendar(); renderRail(); }
+  });
+  $("#railBody").addEventListener("click", e => {
+    const ed = e.target.closest("[data-open]");
+    if (ed) { openModal(ed.dataset.open); return; }
+    const cp = e.target.closest("[data-copy]");
+    if (cp) openModal(null, { copyOf: cp.dataset.copy, date: view.selected });
+  });
+
+  /* ── 목록 ── */
+  $("#listBody").addEventListener("click", e => {
+    const tr = e.target.closest("[data-open]");
+    if (tr) openModal(tr.dataset.open);
+  });
+  $("#listSearch").addEventListener("input", e => { view.q = e.target.value; renderList(); });
+  $("#listSite").addEventListener("change", e => { view.site = e.target.value; fillSelects(); renderAll(); });
+  $("#listShift").addEventListener("change", e => { view.listShift = e.target.value; renderList(); });
+  $$("#listStateSeg button").forEach(b => b.addEventListener("click", () => {
+    view.listState = b.dataset.ls;
+    $$("#listStateSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    renderList();
+  }));
+  $("#exportXlsx").addEventListener("click", () => exportTable("xlsx"));
+  $("#exportCsv").addEventListener("click", () => exportTable("csv"));
+
+  /* ── 인쇄 ── */
+  $("#printBtn").addEventListener("click", openPrintBox);
+  $("#printClose").addEventListener("click", () => { $("#printBox").hidden = true; });
+  $("#printCancel").addEventListener("click", () => { $("#printBox").hidden = true; });
+  $("#printGo").addEventListener("click", doPrint);
+  $$("#printBox [data-pm]").forEach(b => b.addEventListener("click", () => { view.printMode = b.dataset.pm; applyPrintMode(); }));
+  $("#printDates").addEventListener("change", e => {
+    const cb = e.target.closest("[data-pd]");
+    if (!cb) return;
+    const d = cb.dataset.pd;
+    view.printDates = cb.checked ? view.printDates.concat([d]) : view.printDates.filter(x => x !== d);
+  });
+  $("#printAllDates").addEventListener("click", () => { view.printDates = Array.from(new Set(monthLogs().map(r => r.log_date))); renderPrintDatePicker(); });
+  $("#printNoDates").addEventListener("click", () => { view.printDates = []; renderPrintDatePicker(); });
+
+  /* ── 작성창 ──
+     **바깥 클릭으로 닫지 않는다.** 글자를 끌어 고르다 손을 밖에서 떼면
+     그것도 바깥 클릭으로 잡혀 적던 내용이 통째로 날아간다 */
+  $("#modalClose").addEventListener("click", closeModal);
+  $("#cancelRec").addEventListener("click", closeModal);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (!$("#modal").hidden) closeModal();
+      else if (!$("#printBox").hidden) $("#printBox").hidden = true;
+      else if (!$("#copyBox").hidden) $("#copyBox").hidden = true;
+      else if (!$("#settingsBox").hidden) $("#settingsBox").hidden = true;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); saveNow(); }
+    if (!$("#modal").hidden || !$("#settingsBox").hidden) return;
+    if (e.target.matches("input,select,textarea")) return;
+    if (e.key === "ArrowLeft") shiftMonth(-1);
+    if (e.key === "ArrowRight") shiftMonth(1);
+  });
+  $("#fSite").addEventListener("change", () => {
+    const cur = formToLog();
+    fillShiftSelect($("#fSite").value, cur.shift);
+    renderFormFields(cur);
+  });
+  /* 표 형식 칸의 줄 추가·삭제 */
+  $("#formFields").addEventListener("click", e => {
+    const add = e.target.closest("[data-gadd]");
+    if (add) {
+      const box = $('[data-gt="' + CSS.escape(add.dataset.gadd) + '"]');
+      const form = formOfSite($("#fSite").value);
+      const f = form.fields.find(x => x.key === add.dataset.gadd);
+      $("tbody", box).insertAdjacentHTML("beforeend", gRowHtml(tableCols(f), []));
+      return;
+    }
+    const del = e.target.closest("[data-gdel]");
+    if (del) {
+      const tb = del.closest("tbody");
+      if ($$("tr", tb).length > 1) del.closest("tr").remove();
+      else $$("input", del.closest("tr")).forEach(i => { i.value = ""; });
+    }
+  });
+  $("#recForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!canWriteLog()) { toast("로그인해야 일지를 쓸 수 있습니다"); return; }
+    const r = formToLog();
+    const form = formOfSite(r.site_id);
+    const miss = form.fields.filter(f => f.required && !String(fieldText(f, r.data[f.key]) || "").trim());
+    if (miss.length) { toast(miss[0].label + " 을(를) 채워 주세요"); return; }
+    const dups = dupOf(r);
+    if (dups.length && !editingId) {
+      $("#dupNotice").hidden = false;
+      $("#dupNotice").textContent = "같은 날 같은 근무조 일지가 이미 " + dups.length + "건 있습니다. 그래도 저장하려면 한 번 더 누르세요.";
+      if (!$("#recForm").dataset.warned) { $("#recForm").dataset.warned = "1"; return; }
+    }
+    delete $("#recForm").dataset.warned;
+    const i = logs.findIndex(x => x.id === r.id);
+    if (i >= 0) logs[i] = r; else logs.push(r);
+    try {
+      /* **일지는 쓰는 즉시 올린다** — 달력에 뜬 일지가 다른 PC 에 안 보이는 시간이 없어야 한다 */
+      await logSave(r);
+      toast(editingId ? "수정했습니다" : "저장했습니다");
+    } catch (err) {
+      stashPending();
+      toast("서버에 올리지 못했습니다. 내용을 따로 보관해 두었습니다.");
+    }
+    closeModal();
+    renderAll();
+  });
+  $("#delRec").addEventListener("click", async () => {
+    if (!editingId) return;
+    const ok = await askConfirm({
+      title: "이 일지를 지울까요?", what: "지운 일지는 되돌릴 수 없습니다.",
+      go: "지우기", word: "일지삭제"
+    });
+    if (!ok) return;
+    try { await logDelete(editingId); toast("지웠습니다"); }
+    catch (e) { toast("지우지 못했습니다: " + (e.message || "")); }
+    closeModal();
+    renderAll();
+  });
+
+  /* ── 설정 화면 (사업장 · 양식) ── */
+  $$("#setSeg button").forEach(b => b.addEventListener("click", () => { view.setPane = b.dataset.sp; applySetPane(); }));
+  $("#setPaneSave").addEventListener("click", saveSettingsNow);
+  /* **화면 잠금과 별개로 담당자가 아니면 입력 처리 자체를 막는다** —
+     잠긴 칸을 개발자도구로 건드려도 값이 바뀌지 않아야 한다 */
+  $("#pane-settings").addEventListener("input", e => {
+    if (!canEditCfg()) return;
+    const siteBox = e.target.closest("[data-sid]");
+    if (siteBox) {
+      const s = siteOf(siteBox.dataset.sid);
+      const k = e.target.dataset.k;
+      if (!s || !k) return;
+      if (k === "shifts") s.shifts = e.target.value.split(",").map(x => x.trim()).filter(Boolean);
+      else s[k] = e.target.value;
+      save();
+      if (k === "color" || k === "name") { renderSettings(); renderCalendar(); fillSelects(); }
+      return;
+    }
+    const fieldBox = e.target.closest("[data-fk]");
+    if (fieldBox) {
+      const form = formOf(view.formId);
+      const f = (form.fields || []).find(x => x.key === fieldBox.dataset.fk);
+      const k = e.target.dataset.k;
+      if (!f || !k) return;
+      f[k] = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+      save();
+      if (k === "type") renderSettings();
+      return;
+    }
+    if (e.target.id === "formName") { formOf(view.formId).name = e.target.value; save(); fillSelects(); }
+  });
+  $("#formPick").addEventListener("change", e => { view.formId = e.target.value; renderSettings(); });
+  $("#pane-settings").addEventListener("click", async e => {
+    if (!canEditCfg()) return;
+    const ds = e.target.closest("[data-delsite]");
+    if (ds) {
+      if (cfg.sites.length <= 1) return;
+      cfg.sites = cfg.sites.filter(s => s.id !== ds.dataset.delsite);
+      if (view.site === ds.dataset.delsite) view.site = "";
+      save(); fillSelects(); renderAll(); renderSettings();
+      return;
+    }
+    const df = e.target.closest("[data-delfield]");
+    if (df) {
+      const form = formOf(view.formId);
+      form.fields = form.fields.filter(f => f.key !== df.dataset.delfield);
+      save(); renderSettings(); renderList();
+      return;
+    }
+    const mv = e.target.closest("[data-fmove]");
+    if (mv) {
+      const form = formOf(view.formId);
+      const i = Number(mv.dataset.fmove), d = Number(mv.dataset.dir);
+      if (i + d < 0 || i + d >= form.fields.length) return;
+      const [x] = form.fields.splice(i, 1);
+      form.fields.splice(i + d, 0, x);
+      save(); renderSettings(); renderList();
+    }
+  });
+  $("#addSite").addEventListener("click", () => {
+    if (!canEditCfg()) return;
+    cfg.sites.push({ id: uid(), name: "새 사업장", color: SITE_COLOR_IDS[cfg.sites.length % 4],
+      formId: (cfg.forms[0] || {}).id, shifts: ["주간", "야간"], startDefault: "09:00", endDefault: "18:00" });
+    save(); fillSelects(); renderSettings(); renderCalendar();
+  });
+  $("#addForm").addEventListener("click", () => {
+    if (!canEditCfg()) return;
+    const f = { id: uid(), name: "새 양식", fields: [{ key: uid(), label: "근무자", type: "text", required: true }] };
+    cfg.forms.push(f); view.formId = f.id;
+    save(); renderSettings();
+  });
+  $("#addField").addEventListener("click", () => {
+    if (!canEditCfg()) return;
+    formOf(view.formId).fields.push({ key: uid(), label: "새 칸", type: "text", required: false, hint: "", options: "", cols: "" });
+    save(); renderSettings(); renderList();
+  });
+
+  /* ── 설정창 ──
+     관리자 전용 칸은 열 때마다 새로 만들어지므로 **#settingsBox 에 한 번만 위임한다** */
+  $("#setClose").addEventListener("click", () => { $("#settingsBox").hidden = true; });
+  $("#setCloseFoot").addEventListener("click", () => { $("#settingsBox").hidden = true; });
+  $("#setSave").addEventListener("click", saveSettingsNow);
+  $("#srvSaveCfg").addEventListener("click", () => {
+    saveServerCfg($("#srvUrl").value, $("#srvKey").value);
+    toast("저장했습니다. 새로고침합니다.");
+    setTimeout(() => location.reload(), 600);
+  });
+  $("#srvLogin").addEventListener("click", async () => {
+    const msg = $("#srvMsg");
+    msg.textContent = "로그인 중…";
+    try {
+      await serverLogin($("#srvEmail").value.trim(), $("#srvPw").value);
+      $("#srvPw").value = "";
+      msg.textContent = "";
+      toast("로그인했습니다. 자료를 다시 불러옵니다.");
+      setTimeout(() => location.reload(), 500);
+    } catch (e) { msg.textContent = e.message || "로그인하지 못했습니다"; }
+  });
+  $("#srvLogout").addEventListener("click", () => {
+    serverLogout();
+    toast("로그아웃했습니다.");
+    setTimeout(() => location.reload(), 400);
+  });
+  $("#settingsBox").addEventListener("input", e => {
+    if (!canEditCfg()) return;
+    if (e.target.id === "setManagers") {
+      cfg.managers = e.target.value.split("\n").map(x => x.trim().toLowerCase()).filter(Boolean);
+      save();
+    }
+    if (e.target.id === "setOrgNote") { cfg.orgNote = e.target.value; save(); }
+  });
+  $("#settingsBox").addEventListener("click", async e => {
+    if (e.target.id === "exportJson") {
+      download("근무일지_전체_" + view.year + pad(view.month) + ".json",
+        JSON.stringify({ cfg: cfg, logs: logs }, null, 2), "application/json");
+    }
+    if (e.target.id === "clearLogs") {
+      if (!canEditCfg()) return;
+      const rows = monthLogs();
+      if (!rows.length) { toast("이 달에 지울 일지가 없습니다"); return; }
+      const ok = await askConfirm({
+        title: "이 달 일지를 전부 지울까요?",
+        what: view.year + "년 " + view.month + "월 일지 " + rows.length + "건을 지웁니다. 되돌릴 수 없습니다.",
+        go: "전부 지우기", word: "일지삭제"
+      });
+      if (!ok) return;
+      for (const r of rows) { try { await logDelete(r.id); } catch (err) {} }
+      clearPending();     // **안 부르면 지운 일지가 다음에 열 때 복구 안내로 되살아난다**
+      renderAll();
+      toast(rows.length + "건을 지웠습니다");
+    }
+  });
+
+  /* ── 붙여넣기 창 ── */
+  $("#copyClose").addEventListener("click", () => { $("#copyBox").hidden = true; });
+  $("#copyDo").addEventListener("click", () => {
+    const t = $("#copyText");
+    t.select();
+    try { document.execCommand("copy"); toast("복사했습니다"); } catch (e) { toast("직접 복사해 주세요"); }
+  });
+
+  /* 저장 안 된 변경이 있으면 창 닫기를 막는다 */
+  window.addEventListener("beforeunload", e => {
+    if (RUNTIME.dirty) { e.preventDefault(); e.returnValue = ""; }
+  });
+}
+</script>
+</body>
+</html>
