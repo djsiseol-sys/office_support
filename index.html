@@ -170,6 +170,37 @@ main{max-width:1440px;margin:0 auto;padding:18px 20px 60px}
 [data-sc="purple"]{--sc-soft:var(--sc-purple-soft);--sc-line:var(--sc-purple-line);--sc-ink:var(--sc-purple-ink)}
 .chip-more{font-size:11px;color:var(--muted);background:none;border:0;padding:2px 4px;text-align:left}
 
+/* ---------- 현황 (실시간 근무 상황) ----------
+   **색을 새로 만들지 않는다.** 사업장 구분색(data-sc)과 이미 있는
+   --accent(전달사항) · --alert(특이사항) · --ok(근무 중) 만 쓴다 */
+.st-top{display:flex;align-items:center;gap:14px;padding:11px 14px;margin-bottom:14px;flex-wrap:wrap}
+.st-clock{font-size:22px;font-weight:500;letter-spacing:-.02em}
+.st-day{font-size:13px;color:var(--ink-2)}
+.st-day .hol{color:var(--sun)}
+.st-note{font-size:11.5px;color:var(--muted);margin-left:auto;text-align:right}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;align-items:start}
+.st-card{display:flex;flex-direction:column}
+.st-head{display:flex;align-items:center;gap:8px;padding:11px 13px;border-bottom:1px solid var(--line);
+  background:var(--sc-soft);box-shadow:inset 4px 0 0 var(--sc-line);border-radius:8px 8px 0 0}
+.st-head h2{margin:0;font-size:14px;font-weight:600;color:var(--sc-ink)}
+.st-head .spacer{margin-left:auto}
+.st-body{padding:11px 13px;display:flex;flex-direction:column;gap:9px}
+/* 임시저장은 파선 테두리로만 구분한다 — 바탕색을 깔지 않는다 (달력 칩과 같은 규칙) */
+.st-now{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:var(--r);padding:9px 10px}
+.st-now.is-draft{border-style:dashed}
+.st-when{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.st-when .t{font-size:13px}
+.st-who{font-size:15px;font-weight:600;word-break:keep-all;overflow-wrap:anywhere}
+.st-left{font-size:11.5px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.st-gauge{height:3px;border-radius:2px;background:var(--sunk);overflow:hidden}
+.st-gauge i{display:block;height:100%;background:var(--accent)}
+.st-sub{font-size:11.5px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.st-hand{border-top:1px dashed var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.st-hand h3{margin:0;font-size:10px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase;font-weight:600}
+.st-quick{display:flex;gap:6px}
+.st-quick input{flex:1 1 auto;min-width:0;padding:5px 9px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.st-act{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
 /* ---------- 우측 상세 ---------- */
 .rail{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
 .rail-head{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -301,6 +332,7 @@ kbd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;border:1px solid var(
    **감추는 것이 아니라 아예 그리지 않아야 하는 값은 renderXxx 첫 줄에서 막는다.**
    여기 규칙은 「고치는 단추」 를 숨기는 용도다 */
 body.ro #newBtn,body.ro #railDone,body.ro .item-actions,body.ro #saveRec,body.ro #delRec,
+body.ro .st-quick,body.ro [data-new],
 body.ro #addSite,body.ro #addField,body.ro #addForm,body.ro [data-delsite],body.ro [data-delfield]{display:none!important}
 body.ro #pane-settings input,body.ro #pane-settings select,body.ro #pane-settings textarea{pointer-events:none;opacity:.72}
 /* **조회 전용이어도 서버 연결·로그인 칸은 잠그지 않는다** —
@@ -313,6 +345,7 @@ body.no-admin [data-delfield],body.no-admin #setSave,body.no-admin #setPaneSave{
    (renderRail·renderList 첫 줄에서 막는다). 여기서는 단추만 뺀다 */
 body.viewer .tabs [data-pane="settings"],body.viewer #newBtn,body.viewer #saveNow,
 body.viewer #railDone,body.viewer .item-actions,body.viewer #exportXlsx,body.viewer #exportCsv,
+body.viewer .st-quick,body.viewer [data-new],
 body.viewer #printBtn{display:none!important}
 
 /* ---------- 인쇄 ---------- */
@@ -357,7 +390,8 @@ body.viewer #printBtn{display:none!important}
     </div>
 
     <nav class="tabs" role="tablist">
-      <button type="button" role="tab" data-pane="calendar" aria-selected="true">달력</button>
+      <button type="button" role="tab" data-pane="status" aria-selected="true">현황</button>
+      <button type="button" role="tab" data-pane="calendar" aria-selected="false">달력</button>
       <button type="button" role="tab" data-pane="list" aria-selected="false">목록</button>
       <button type="button" role="tab" data-pane="settings" aria-selected="false">사업장 · 양식</button>
     </nav>
@@ -381,8 +415,21 @@ body.viewer #printBtn{display:none!important}
 </div>
 
 <main>
+  <!-- ================= 현황 (지금 근무 상황) =================
+       달력이 「한 달」 을 보는 자리라면 여기는 「지금」 을 보는 자리다.
+       초소마다 지금 누가 서 있는지, 직전 근무가 무엇을 넘겼는지를 한 화면에 모은다 -->
+  <section class="pane active" id="pane-status">
+    <div class="card st-top">
+      <span class="st-clock mono" id="stClock">--:--:--</span>
+      <span class="st-day" id="stDay"></span>
+      <button type="button" class="btn btn-sm" id="stRefresh" title="지금 서버에서 다시 확인합니다">지금 확인</button>
+      <span class="st-note" id="stNote"></span>
+    </div>
+    <div class="st-grid" id="statusGrid"></div>
+  </section>
+
   <!-- ================= 달력 ================= -->
-  <section class="pane active" id="pane-calendar">
+  <section class="pane" id="pane-calendar">
     <div class="split">
       <div>
         <div class="card">
@@ -726,7 +773,7 @@ body.viewer #printBtn{display:none!important}
 /* 판 번호. **내용을 고치면 반드시 여기를 올린다.**
    ⚙ 설정 창 맨 아래에 뜬다 — "고쳤다는데 화면이 그대로다" 는 대개 옛 파일을
    열고 있는 것인데, 이 표시가 없으면 어느 파일을 보는지 확인할 방법이 없다 */
-const APP_VERSION = "2026-08-28.3";
+const APP_VERSION = "2026-08-31.1";
 
 /* ── 서버(Supabase) 접속 정보 ──────────────────────────────
    여기 두 값을 채우면 각자 입력하지 않아도 된다.
@@ -750,6 +797,9 @@ const SERVER_SESSION_KEY = "wl.session.v1";
 
 const AUTOSAVE_MS = 120000;   // 설정은 마지막 변경 후 2분 조용하면 자동 저장
 const POLL_MS = 15000;        // 다른 사람이 쓴 일지가 있는지 확인하는 주기
+/* 현황 화면을 **보고 있을 때만** 이 주기로 확인한다. 확인 요청은 updated_at 한 줄이라
+   수십 바이트다 — 자료를 통째로 받는 것이 아니다 */
+const LIVE_POLL_MS = 7000;
 
 /* 사업장 구분색. CSS 의 --sc-<이름>-soft/line/ink 와 짝이 맞아야 한다 */
 const SITE_COLORS = [
@@ -832,7 +882,7 @@ let cfg = structuredClone(DEFAULT_CFG);
 let logs = [];
 const today = new Date();
 const view = {
-  pane: "calendar", setPane: "site",
+  pane: "status", setPane: "site",
   year: today.getFullYear(), month: today.getMonth() + 1,
   site: "",                 // "" 이면 전체 사업장
   selected: null,
@@ -1024,7 +1074,7 @@ function renderStorageNote() {
 
    SDK 를 쓰지 않고 REST 를 직접 fetch 한다 (단일 파일 제약).
    ========================================================= */
-const SERVER = { token: null, refresh: null, email: null, seen: null, poll: null, on: false, err: "" };
+const SERVER = { token: null, refresh: null, email: null, seen: null, poll: null, live: null, on: false, err: "" };
 
 function serverCfg() {
   try {
@@ -1187,6 +1237,7 @@ async function logSave(r) {
   r.updated_at = new Date().toISOString();
   r.updated_by = SERVER.email || "";
   mirrorLocal();
+  liveMerge(r);          // 달을 옮겨 놓았어도 현황에는 바로 뜬다
   if (!RUNTIME.server) return true;
   if (!RUNTIME.writable) { const e = new Error("권한 없음"); e.code = "not_writer"; throw e; }
   const send = () => sbFetch("/rest/v1/" + T_LOG, {
@@ -1203,6 +1254,7 @@ async function logSave(r) {
 }
 async function logDelete(id) {
   logs = logs.filter(x => x.id !== id);
+  liveDrop(id);
   mirrorLocal();
   if (!RUNTIME.server) return true;
   let res = await sbFetch("/rest/v1/" + T_LOG + "?id=eq." + encodeURIComponent(id), { method: "DELETE" });
@@ -1237,7 +1289,74 @@ async function serverPoll() {
 function startPolling() {
   clearInterval(SERVER.poll);
   SERVER.poll = setInterval(serverPoll, POLL_MS);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) serverPoll(); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) return;
+    serverPoll();
+    if (view.pane === "status") livePoll();
+  });
+}
+
+/* ── 지금 근무 상황 (현황 화면) ────────────────────────────
+   달력·목록은 **보고 있는 달**을 다루지만 현황은 **지금**을 다룬다.
+   9월 달력을 펴 둔 채로도 현황은 오늘 것을 보여줘야 하므로 따로 받아온다.
+   받는 것은 **어제·오늘·내일 사흘치뿐이다** — 야간 근무가 자정을 넘기 때문에
+   어제가, 다음 근무를 보여주려니 내일이 필요하다.
+   확인은 달력과 마찬가지로 **가장 최근 updated_at 하나만** 본다.
+   **주기적으로 통째로 받지 않는다** */
+const LIVE = { rows: [], seen: "", at: null, day: "" };
+
+function liveRange() { const t = todayStr(); return [addDays(t, -1), addDays(t, 1)]; }
+
+async function liveLoad() {
+  const [a, b] = liveRange();
+  const res = await sbGet("/rest/v1/" + T_LOG +
+    "?log_date=gte." + a + "&log_date=lte." + b +
+    "&select=*&order=log_date.asc,start_at.asc");
+  if (!res.ok) throw new Error("근무 상황을 불러오지 못했습니다 (" + res.status + ")");
+  const rows = await res.json();
+  LIVE.rows = rows.map(migrateLog);
+  LIVE.seen = LIVE.rows.reduce((mx, r) => (r.updated_at > mx ? r.updated_at : mx), "");
+  LIVE.at = new Date();
+  LIVE.day = todayStr();
+  return LIVE.rows;
+}
+/* 방금 이 브라우저에서 쓴 일지가 현황에 바로 뜨게 한다 (달을 옮겨 놓았어도) */
+function liveMerge(r) {
+  const i = LIVE.rows.findIndex(x => x.id === r.id);
+  if (i >= 0) LIVE.rows[i] = structuredClone(r); else LIVE.rows.push(structuredClone(r));
+}
+function liveDrop(id) { LIVE.rows = LIVE.rows.filter(x => x.id !== id); }
+
+async function livePoll() {
+  if (!RUNTIME.server || !SERVER.token) return;      // 조회 전용은 일지를 받지 않는다
+  if (RUNTIME.saving) return;
+  if (!$("#modal").hidden || !$("#pwBox").hidden) return;   // 쓰는 중에는 화면을 바꾸지 않는다
+  try {
+    const [a, b] = liveRange();
+    const res = await sbGet("/rest/v1/" + T_LOG +
+      "?log_date=gte." + a + "&log_date=lte." + b +
+      "&select=updated_at&order=updated_at.desc&limit=1");
+    if (!res.ok) return;
+    const rows = await res.json();
+    const top = rows.length ? rows[0].updated_at : "";
+    LIVE.at = new Date();
+    if (top === LIVE.seen && LIVE.day === todayStr()) { renderStatusNote(); return; }
+    await liveLoad();
+    renderStatusSafe();
+  } catch (e) { /* 일시적인 통신 실패는 넘긴다 */ }
+}
+/* **현황 화면을 보고 있을 때만** 자주 확인한다. 다른 화면에서는 멈춘다 */
+function startLive() {
+  clearInterval(SERVER.live);
+  if (!RUNTIME.server || !SERVER.token) return;
+  SERVER.live = setInterval(livePoll, LIVE_POLL_MS);
+  livePoll();
+}
+function stopLive() { clearInterval(SERVER.live); SERVER.live = null; }
+async function refreshLive(say) {
+  if (!RUNTIME.server || !SERVER.token) { renderStatus(); if (say) toast("서버에 로그인해야 다른 PC 의 근무 상황이 보입니다"); return; }
+  try { await liveLoad(); renderStatus(); if (say) toast("근무 상황을 다시 불러왔습니다"); }
+  catch (e) { if (say) toast(e.message || "불러오지 못했습니다"); }
 }
 
 /* =========================================================
@@ -1253,6 +1372,18 @@ const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 function ymd(y, m, d) { return y + "-" + pad(m) + "-" + pad(d); }
 function parseYmd(s) { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, m - 1, d); }
 function toMin(t) { if (!t) return 0; const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); }
+/* **오늘을 그때그때 다시 센다.** 초소 PC 는 화면을 켜 둔 채 자정을 넘기므로
+   불러올 때 한 번 잡아 둔 날짜를 쓰면 하루가 지나도 어제 것을 보여준다 */
+function todayStr() { const t = new Date(); return ymd(t.getFullYear(), t.getMonth() + 1, t.getDate()); }
+function addDays(dateStr, n) { const d = parseYmd(dateStr); d.setDate(d.getDate() + n); return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+/* 그 일지가 걸쳐 있는 실제 시간대. **끝 시각이 시작보다 빠르거나 같으면 자정을 넘긴 것이다**
+   (야간 22:00–06:00). 이것을 안 보면 밤 근무가 현황에서 통째로 빠진다 */
+function shiftWindow(r) {
+  const a = parseYmd(r.log_date); a.setHours(0, toMin(r.start_at), 0, 0);
+  const b = parseYmd(r.log_date); b.setHours(0, toMin(r.end_at), 0, 0);
+  if (toMin(r.end_at) <= toMin(r.start_at)) b.setDate(b.getDate() + 1);
+  return [a, b];
+}
 /* **반드시 esc() 를 거쳐 innerHTML 에 넣는다.** 렌더는 전부 문자열 조합이다 */
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 function textWidth(v) {
@@ -1329,6 +1460,12 @@ function toggleDone(date, siteId) {
    **이 구분은 화면에서 가르는 것이고, 서버는 RLS 가 막는다.**
    화면 규칙만 믿지 말고 RLS 를 반드시 켠다 (서버설치안내.md 참고) */
 function currentRole() {
+  /* 서버를 붙이지 않은 자리(이 브라우저에만 저장)에는 로그인이라는 것이 없다.
+     여기서 viewer 로 떨어뜨리면 **파일만 열어서는 아무것도 쓸 수 없다** —
+     README 가 말하는 「열면 바로 쓸 수 있다」 가 성립하지 않는다.
+     감출 이유도 없다: 자료가 이 브라우저 밖으로 나가지 않기 때문이다.
+     **주소만 알면 열리는 서버 자리에서는 아래 규칙이 그대로 적용된다** */
+  if (!RUNTIME.server) return "manager";
   if (!SERVER.token || !RUNTIME.writable) return "viewer";
   const list = cfg.managers || [];
   /* **목록이 비어 있으면 로그인한 모두가 담당자다.** 계정을 만들고 목록에 넣는 것을
@@ -1388,9 +1525,12 @@ function noteTextOf(r) {
 }
 /* 달력 칩 아랫줄에 띄울 값 — 첫 번째 한 줄 칸(대개 근무자).
    **빈 줄이 되면 안 되므로** 없으면 근무조로 대신한다 */
-function chipLabelOf(r) {
+function chipFieldOf(r) {
   const form = formOfSite(r.site_id);
-  const f = form.fields.find(x => x.type === "text");
+  return form.fields.find(x => x.type === "text") || null;
+}
+function chipLabelOf(r) {
+  const f = chipFieldOf(r);
   const v = f ? String(r.data[f.key] || "").trim() : "";
   return v || r.shift || "(내용 없음)";
 }
@@ -1513,7 +1653,7 @@ function calCellsHtml(o) {
     if (w === 6) cls.push("sat");
     if (w === 0) cls.push("sun");
     if (hol) cls.push("hol");
-    if (key === ymd(today.getFullYear(), today.getMonth() + 1, today.getDate())) cls.push("today");
+    if (key === todayStr()) cls.push("today");
     if (opt.live && view.selected === key) cls.push("selected");
     if (done) cls.push("is-done");
 
@@ -1573,6 +1713,221 @@ function renderSummary() {
     stat("임시저장", drafts + '<small>건</small>');
 }
 function stat(t, v) { return '<div class="stat"><dt>' + esc(t) + "</dt><dd>" + v + "</dd></div>"; }
+
+/* =========================================================
+   4-B. 현황 — 지금 근무 상황
+   =========================================================
+   달력이 「한 달」 을 보는 자리라면 여기는 **「지금」 을 보는 자리**다.
+   초소마다 지금 누가 서 있는지, 직전 근무가 무엇을 넘겼는지를 한 화면에 모은다 —
+   수기 일지의 가장 큰 불편(그 초소에 가야만 읽을 수 있다)이 걸려 있는 곳이다.
+
+   지켜야 할 것
+   - 값을 사람이 읽는 글로 바꾸는 것은 **여기서도 fieldText() 하나가 한다**
+   - 어느 칸이 특이사항·전달사항인지는 **양식(cfg.forms)이 정한다.** 칸 이름을 코드에 박지 않는다
+   - **로그인하지 않은 사람에게는 본문을 그리지 않는다** (달력·목록과 같은 원칙).
+     감추는 것이 아니라 만들지 않는다 — 근무자 이름은 개인정보다
+   ========================================================= */
+
+/* 현황이 다루는 사흘치 일지. 서버에서 받은 것(LIVE)과 이 브라우저에서 방금 쓴 것(logs)을
+   합치되, 같은 일지는 **나중에 고친 쪽**을 쓴다 */
+function liveLogsOf(siteId) {
+  const [a, b] = liveRange();
+  const map = new Map();
+  const put = r => {
+    if (r.log_date < a || r.log_date > b) return;
+    if (siteId && r.site_id !== siteId) return;
+    const prev = map.get(r.id);
+    if (!prev || String(r.updated_at || "") >= String(prev.updated_at || "")) map.set(r.id, r);
+  };
+  LIVE.rows.forEach(put);
+  logs.forEach(put);
+  return Array.from(map.values()).sort(byDateTime);
+}
+function statusSites() { return cfg.sites.filter(s => !view.site || s.id === view.site); }
+
+function fmtSpan(ms) {
+  const m = Math.max(0, Math.round(ms / 60000));
+  const h = Math.floor(m / 60);
+  return (h ? h + "시간 " : "") + (m % 60) + "분";
+}
+
+/* 그 초소의 지금 · 직전 · 다음 근무 */
+function siteStatus(site, now) {
+  const rows = liveLogsOf(site.id);
+  const on = [], past = [], next = [];
+  rows.forEach(r => {
+    const [a, b] = shiftWindow(r);
+    if (now >= a && now < b) on.push({ r: r, a: a, b: b });
+    else if (b <= now) past.push({ r: r, a: a, b: b });
+    else next.push({ r: r, a: a, b: b });
+  });
+  past.sort((x, y) => y.b - x.b);
+  next.sort((x, y) => x.a - y.a);
+  on.sort((x, y) => x.a - y.a);
+  return { on: on, prev: past[0] || null, next: next[0] || null,
+           today: rows.filter(r => r.log_date === todayStr()) };
+}
+
+/* 특이사항을 한 줄로 바로 올릴 칸. **어느 칸인지는 양식이 정한다** —
+   「특이사항」 으로 표시된 첫 글자 칸에 넣는다 (표·숫자 칸에는 넣지 않는다) */
+function quickField(r) {
+  const form = formOfSite(r.site_id);
+  return form.fields.find(f => f.flag && (f.type === "textarea" || f.type === "text")) || null;
+}
+function quickHtml(r) {
+  const f = quickField(r);
+  if (!f || !canWriteLog()) return "";
+  return '<form class="st-quick" data-qid="' + esc(r.id) + '">' +
+    '<input aria-label="' + esc(f.label) + ' 추가" placeholder="' + esc(f.label) + ' 한 줄 적고 Enter">' +
+    '<button type="submit" class="btn btn-sm">추가</button></form>';
+}
+
+function statusNowHtml(x, now) {
+  const r = x.r;
+  const form = formOfSite(r.site_id);
+  const flag = flagTextOf(r), note = noteTextOf(r);
+  const span = Math.max(1, x.b - x.a);
+  const pct = Math.min(100, Math.max(0, Math.round((now - x.a) / span * 100)));
+  /* 이름 칸은 위에 크게 이미 나오므로 아래 줄에서는 뺀다 (두 번 적히지 않게) */
+  const lead = chipFieldOf(r);
+  const meta = form.fields
+    .filter(f => f !== lead && !f.flag && !f.note && f.type !== "table" && f.type !== "textarea")
+    .map(f => { const v = fieldText(f, r.data[f.key]); return v ? "<span>" + esc(f.label) + " " + esc(v) + "</span>" : ""; })
+    .filter(Boolean).join("");
+  const tables = form.fields.filter(f => f.type === "table")
+    .map(f => { const n = (Array.isArray(r.data[f.key]) ? r.data[f.key] : []).length;
+                return n ? "<span>" + esc(f.label) + " " + n + "줄</span>" : ""; })
+    .filter(Boolean).join("");
+  /* 인수인계처럼 여러 줄인 칸 — 다음 근무자가 읽어야 하는 내용이라 접지 않고 편다 */
+  const longs = form.fields
+    .filter(f => f !== lead && !f.flag && !f.note && f.type === "textarea")
+    .map(f => { const v = fieldText(f, r.data[f.key]); return v ? "<b>" + esc(f.label) + "</b> " + esc(v) : ""; })
+    .filter(Boolean).join("<br>");
+  return '<div class="st-now' + (r.draft ? " is-draft" : "") + '">' +
+    '<div class="st-when">' +
+      '<span class="t mono">' + esc(r.start_at) + "–" + esc(r.end_at) + "</span>" +
+      (r.shift ? '<span class="tag">' + esc(r.shift) + "</span>" : "") +
+      (r.draft ? '<span class="tag draft">임시저장</span>' : "") +
+      '<span class="st-left">' + esc(fmtSpan(x.b - now)) + " 남음</span>" +
+    "</div>" +
+    '<div class="st-who">' + esc(chipLabelOf(r)) + "</div>" +
+    '<div class="st-gauge"><i style="width:' + pct + '%"></i></div>' +
+    (meta || tables ? '<div class="st-sub">' + meta + tables + "</div>" : "") +
+    (longs ? '<div class="st-sub" style="display:block;white-space:pre-wrap">' + longs + "</div>" : "") +
+    (flag ? '<div class="item-flag"><b>특이사항</b>' + esc(flag) + "</div>" : "") +
+    (note ? '<div class="item-note"><b>전달사항</b>' + esc(note) + "</div>" : "") +
+    '<div class="st-act">' +
+      '<button type="button" class="btn btn-sm" data-open="' + esc(r.id) + '">일지 수정</button>' +
+      (r.updated_by ? '<span class="st-left">' + esc(r.updated_by) + "</span>" : "") +
+    "</div>" +
+    quickHtml(r) +
+  "</div>";
+}
+
+/* 직전 근무가 남긴 것 — **다음 근무자가 여기부터 본다.** 이 자리를 빼지 않는다 */
+function statusSideHtml(x, kind) {
+  if (!x) return "";
+  const r = x.r;
+  const flag = kind === "prev" ? flagTextOf(r) : "";
+  const note = kind === "prev" ? noteTextOf(r) : "";
+  return '<div class="st-hand"><h3>' + (kind === "prev" ? "직전 근무 · 인수인계" : "다음 근무") + "</h3>" +
+    '<div class="st-sub">' +
+      '<span class="mono">' + esc(r.log_date.slice(5)) + " " + esc(r.start_at) + "–" + esc(r.end_at) + "</span>" +
+      (r.shift ? "<span>" + esc(r.shift) + "</span>" : "") +
+      "<span>" + esc(chipLabelOf(r)) + "</span>" +
+    "</div>" +
+    (note ? '<div class="item-note"><b>전달사항</b>' + esc(note) + "</div>" : "") +
+    (flag ? '<div class="item-flag"><b>특이사항</b>' + esc(flag) + "</div>" : "") +
+    (kind === "prev"
+      ? '<div class="st-act"><button type="button" class="btn btn-quiet btn-sm" data-open="' + esc(r.id) + '">보기 · 수정</button></div>'
+      : "") +
+  "</div>";
+}
+
+function renderStatus() {
+  const box = $("#statusGrid");
+  if (!box) return;
+  const now = new Date();
+  const t = todayStr();
+  const hol = holidayName(t);
+  const dayEl = $("#stDay");
+  if (dayEl) dayEl.innerHTML = esc(t) + " (" + DOW[parseYmd(t).getDay()] + ")" +
+    (hol ? ' <span class="hol">' + esc(hol) + "</span>" : "");
+  renderStatusNote();
+
+  /* 로그인하지 않은 사람에게는 **근무자 이름도 특이사항도 만들지 않는다.**
+     감추기만 하면 개발자도구로 소스에서 그대로 읽힌다 — 건수만 남긴다 */
+  const viewer = currentRole() === "viewer";
+
+  box.innerHTML = statusSites().map(site => {
+    const st = siteStatus(site, now);
+    const head = '<div class="st-head"><h2>' + esc(site.name) + "</h2><span class=\"spacer\"></span>" +
+      (viewer ? '<span class="tag">오늘 ' + st.today.length + "건</span>"
+              : st.on.length ? '<span class="tag ok">근무 중 ' + st.on.length + "건</span>"
+                             : '<span class="tag">근무 중인 일지 없음</span>') +
+      "</div>";
+
+    if (viewer) {
+      return '<section class="card st-card" data-sc="' + esc(colorOf(site)) + '">' + head +
+        '<div class="st-body"><div class="empty" style="padding:14px 0">' +
+        "근무자 이름과 인수인계 사항은 로그인한 직원만 볼 수 있습니다.<br>⚙ 설정 에서 로그인하세요." +
+        "</div></div></section>";
+    }
+
+    const nowHtml = st.on.length
+      ? st.on.map(x => statusNowHtml(x, now)).join("")
+      : '<div class="empty" style="padding:12px 0">지금 시각에 걸친 일지가 없습니다.</div>';
+
+    const foot = '<div class="st-act">' +
+      (canWriteLog() ? '<button type="button" class="btn btn-primary btn-sm" data-new="' + esc(site.id) + '">+ 지금 일지 작성</button>' : "") +
+      '<span class="st-left">오늘 ' + st.today.length + "건</span></div>";
+
+    return '<section class="card st-card" data-sc="' + esc(colorOf(site)) + '">' + head +
+      '<div class="st-body">' + nowHtml +
+      statusSideHtml(st.prev, "prev") + statusSideHtml(st.next, "next") + foot +
+      "</div></section>";
+  }).join("") || '<div class="card"><div class="empty">사업장이 없습니다. <b>사업장 · 양식</b> 에서 추가하세요.</div></div>';
+}
+
+function renderStatusNote() {
+  const el = $("#stNote");
+  if (!el) return;
+  if (!RUNTIME.server) { el.textContent = "이 브라우저에만 저장됩니다 — 다른 PC 의 근무 상황은 보이지 않습니다."; return; }
+  if (!SERVER.on) { el.textContent = "서버에 연결하지 못했습니다" + (SERVER.err ? " · " + SERVER.err : ""); return; }
+  if (!SERVER.token) { el.textContent = "조회 전용입니다. ⚙ 설정 에서 로그인하세요."; return; }
+  el.textContent = Math.round(LIVE_POLL_MS / 1000) + "초마다 자동으로 확인합니다" +
+    (LIVE.at ? " · 마지막 확인 " + pad(LIVE.at.getHours()) + ":" + pad(LIVE.at.getMinutes()) + ":" + pad(LIVE.at.getSeconds()) : "");
+}
+
+/* **적고 있는 칸을 지우지 않는다.** 자동 갱신이 들어와도 현황 화면 안에 커서가 있으면
+   다시 그리기를 미뤘다가, 손을 떼면(focusout) 그때 그린다.
+   자동 갱신 자리(시계·폴링)에서는 renderStatus() 대신 이것을 부른다 */
+let stPending = false;
+function statusBusy() {
+  const a = document.activeElement;
+  return !!(a && a.closest && a.closest("#statusGrid"));
+}
+function renderStatusSafe() {
+  if (statusBusy()) { stPending = true; return; }
+  stPending = false;
+  renderStatus();
+}
+
+/* 시계는 1초마다, 화면은 **분이 바뀔 때만** 다시 그린다.
+   1초마다 전체를 다시 그리는 것은 낭비이고, 적던 내용도 날아간다 */
+let stLastMin = "";
+function statusTick() {
+  const now = new Date();
+  const el = $("#stClock");
+  if (el) el.textContent = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+  if (view.pane !== "status") return;
+  /* 화면을 켜 둔 채 자정을 넘겼으면 그 날 일지를 새로 받는다 */
+  if (LIVE.day && LIVE.day !== todayStr()) { refreshLive(); return; }
+  const key = todayStr() + " " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+  if (key === stLastMin) return;
+  stLastMin = key;
+  renderStatusSafe();
+}
 
 /* =========================================================
    5. 우측 상세
@@ -1913,6 +2268,10 @@ function openModal(id, seed) {
   const base = r ? structuredClone(r)
                  : newLog(seed && seed.date || view.selected || ymd(view.year, view.month, 1),
                           seed && seed.siteId || view.site || (cfg.sites[0] || {}).id);
+  /* 현황의 「지금 일지 작성」 은 지금 시각으로 열어 준다 */
+  if (seed && seed.start) base.start_at = seed.start;
+  if (seed && seed.end) base.end_at = seed.end;
+  if (seed && seed.shift) base.shift = seed.shift;
   if (seed && seed.copyOf) {
     const src = logs.find(x => x.id === seed.copyOf);
     if (src) { base.data = structuredClone(src.data); base.shift = src.shift; base.start_at = src.start_at; base.end_at = src.end_at; base.site_id = src.site_id; }
@@ -2460,6 +2819,7 @@ function renderAll() {
   $("#monthInput").value = view.month;
   applyRole();
   applySetPane();
+  renderStatus();
   renderCalendar();
   renderRail();
   renderList();
@@ -2552,6 +2912,8 @@ function setPane(p) {
   $$(".pane").forEach(s => s.classList.toggle("active", s.id === "pane-" + p));
   if (p === "settings") renderSettings();
   if (p === "list") renderList();
+  /* 현황을 보고 있을 때만 자주 확인한다 — 다른 화면에서는 멈춰 전송량을 아낀다 */
+  if (p === "status") { renderStatus(); startLive(); } else stopLive();
 }
 async function shiftMonth(d) {
   let m = view.month + d, y = view.year;
@@ -2586,6 +2948,8 @@ async function boot() {
          "서버 연결 안 됨" 으로 보이지만 실제로는 정상이다.
          사업장·양식(worklog_config)은 누구나 읽어도 되므로 위에서 먼저 받는다 */
       logs = SERVER.token ? await logsLoad(view.year, view.month) : [];
+      /* 현황은 보고 있는 달이 아니라 **오늘**을 다루므로 사흘치를 따로 받는다 */
+      if (SERVER.token) { try { await liveLoad(); } catch (e) {} }
       SERVER.on = true; SERVER.err = "";
       RUNTIME.writable = !!SERVER.token;   // 불러오는 중에 토큰이 버려졌을 수 있다
       mirrorLocal();
@@ -2602,6 +2966,7 @@ async function boot() {
     else if (!RUNTIME.writable) applyReadOnly();
     else setSaveState("서버에 연결됨");
     startPolling();
+    if (view.pane === "status") startLive();
     offerRecovery();
   } else {
     setSaveState("이 브라우저에 저장");
@@ -2654,6 +3019,59 @@ function init() {
     renderAll();
     toast(view.selected + (on ? " 을 확인 완료로 표시했습니다" : " 의 확인 표시를 뗐습니다"));
   });
+
+  /* ── 현황 ── */
+  $("#stRefresh").addEventListener("click", () => refreshLive(true));
+  $("#statusGrid").addEventListener("click", e => {
+    const ed = e.target.closest("[data-open]");
+    if (ed) { openModal(ed.dataset.open); return; }
+    const nw = e.target.closest("[data-new]");
+    if (nw) {
+      /* 지금 시각으로 열어 준다 (분은 10분 단위로 내림) */
+      const n = new Date();
+      const start = pad(n.getHours()) + ":" + pad(Math.floor(n.getMinutes() / TIME_MIN_STEP) * TIME_MIN_STEP);
+      openModal(null, { date: todayStr(), siteId: nw.dataset.new, start: start });
+    }
+  });
+  /* 특이사항 한 줄 추가 — 적고 Enter 를 누르면 그 자리에서 서버로 올라간다.
+     **어느 칸에 넣을지는 양식(quickField)이 정한다** — 칸 이름을 코드에 박지 않는다 */
+  $("#statusGrid").addEventListener("submit", async e => {
+    const box = e.target.closest(".st-quick");
+    if (!box) return;
+    e.preventDefault();
+    if (!canWriteLog()) { toast("로그인해야 일지를 고칠 수 있습니다"); return; }
+    const input = $("input", box);
+    const text = input.value.trim();
+    if (!text) return;
+    const qid = box.dataset.qid;
+    const src = liveLogsOf("").find(x => x.id === qid);
+    const f = src ? quickField(src) : null;
+    if (!src || !f) { toast("일지를 찾지 못했습니다. 새로고침해 주세요."); return; }
+    const r = structuredClone(src);
+    const line = "[" + hhmm(new Date()) + "] " + text;
+    const old = String(r.data[f.key] || "").trim();
+    r.data[f.key] = f.type === "text" ? (old ? old + " · " + line : line) : (old ? old + "\n" + line : line);
+    input.value = "";
+    const i = logs.findIndex(x => x.id === r.id);
+    if (i >= 0) logs[i] = r; else logs.push(r);
+    try {
+      await logSave(r);
+      toast(f.label + " 을(를) 올렸습니다");
+    } catch (err) {
+      stashPending();
+      toast("서버에 올리지 못했습니다. 내용을 따로 보관해 두었습니다.");
+    }
+    renderAll();
+    /* 이어서 적을 수 있게 같은 칸으로 되돌려 놓는다 */
+    const back = $('.st-quick[data-qid="' + CSS.escape(qid) + '"] input');
+    if (back) back.focus();
+  });
+  /* 갱신이 밀려 있었으면 손을 뗀 뒤에 그린다 */
+  $("#statusGrid").addEventListener("focusout", () => {
+    setTimeout(() => { if (stPending && !statusBusy()) renderStatusSafe(); }, 0);
+  });
+  setInterval(statusTick, 1000);
+  statusTick();
 
   /* ── 달력 ── */
   $("#calGrid").addEventListener("click", e => {
